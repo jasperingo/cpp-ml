@@ -1,5 +1,15 @@
 #include "CSVETL.hpp"
 
+int CSVETL::findIndexInColumns(size_t column, size_t columns[], size_t columnsLength) {
+  for (int i = 0; i < columnsLength; i++) {
+    if (columns[i] == column) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
 bool CSVETL::load() {
   std::ifstream csvFile(filePath);
 
@@ -36,4 +46,75 @@ bool CSVETL::load() {
   std::cout << "Loaded: " << data.size() << " rows of data" << std::endl;
 
   return true;
+}
+
+Eigen::MatrixXd CSVETL::extractSamples(size_t sampleColumns[], size_t sampleColumnsLength) {
+  if (data.size() == 0 || data[0].size() == 0) {
+    return Eigen::MatrixXd();
+  }
+
+  size_t rowSize = data.size();
+
+  size_t colSize = data[0].size();
+
+  Eigen::MatrixXd matrix(rowSize, sampleColumnsLength);
+
+  for (int i = 0; i < rowSize; i++) {
+    for (int j = 0; j < colSize; j++) {
+      int columnIndex = findIndexInColumns(j, sampleColumns, sampleColumnsLength);
+
+      if (columnIndex == -1) {
+        continue;
+      }
+
+      matrix(i, columnIndex) = std::atof(data[i][j].c_str());
+    }
+  }
+
+  return matrix;
+}
+
+Eigen::VectorXd CSVETL::extractLabels(size_t labelColumn) {
+  if (data.size() == 0 || data[0].size() == 0) {
+    return Eigen::VectorXd();
+  }
+
+  size_t rowSize = data.size();
+
+  size_t colSize = data[0].size();
+
+  Eigen::VectorXd vector(rowSize);
+
+  std::vector<std::string> columnValues;
+
+  for (int i = 0; i < rowSize; i++) {
+    for (int j = 0; j < colSize; j++) {
+      if (j != labelColumn) {
+        continue;
+      }
+
+      size_t column;
+
+      std::string columnValue = data[i][j];
+
+      bool columnFound = false;
+
+      for (size_t k = 0; k < columnValues.size(); k++) {
+        if (columnValue == columnValues[k]) {
+          column = k;
+          columnFound = true;
+          break;
+        }
+      }
+
+      if (!columnFound) {
+        column = columnValues.size();
+        columnValues.push_back(columnValue);
+      }
+
+      vector(i) = (double) column;
+    }
+  }
+
+  return vector;
 }

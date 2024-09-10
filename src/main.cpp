@@ -11,19 +11,29 @@ int main(int argc, char* argv[]) {
 
   CSVETL csvETL(argv[1]);
 
-  if (csvETL.load()) {
-    std::cout << "Dataset: " << argv[1] << " loaded " << std::endl;
+  if (!csvETL.load()) {
+    std::cout << "Dataset: " << argv[1] << " not loaded " << std::endl;
+    return 1;
   }
 
+  std::cout << "Dataset: " << argv[1] << " loaded " << std::endl;
+
+  size_t sampleColumns[] = { 1, 2, 3, 4 };
+
+  Eigen::MatrixXd X = csvETL.extractSamples(sampleColumns, 4);
+
+  Eigen::VectorXd y = csvETL.extractLabels(5);
+
+  std::cout << "Samples:" << std::endl << std::endl;
+
+  std::cout << X << std::endl << std::endl;
+
+  std::cout << "Labels:" << std::endl << std::endl;
+
+  std::cout << y << std::endl << std::endl;
+
+  std::cout << "Number of samples: " << X.rows() << std::endl;
+  std::cout << "Number of features: " << X.cols() << std::endl;
+
   // KNN knn;
-
-  // std::cout << "Na me da here!! " << knn.test() << std::endl;
-
-  // Eigen::MatrixXd m(2,2);
-  // m(0,0) = 3;
-  // m(1,0) = 2.1;
-  // m(0,1) = -2;
-  // m(1,1) = m(1,0) + m(0,1);
-
-  // std::cout << m << std::endl;
 }
