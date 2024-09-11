@@ -24,16 +24,28 @@ int main(int argc, char* argv[]) {
 
   Eigen::VectorXd y = csvETL.extractLabels(5);
 
-  std::cout << "Samples:" << std::endl << std::endl;
+  // std::cout << "Samples:" << std::endl << std::endl;
 
-  std::cout << X << std::endl << std::endl;
+  // std::cout << X << std::endl << std::endl;
 
-  std::cout << "Labels:" << std::endl << std::endl;
+  // std::cout << "Labels:" << std::endl << std::endl;
 
-  std::cout << y << std::endl << std::endl;
+  // std::cout << y << std::endl << std::endl;
 
   std::cout << "Number of samples: " << X.rows() << std::endl;
   std::cout << "Number of features: " << X.cols() << std::endl;
+
+  CSVETL::DataSplitResult splitResult = csvETL.splitData(y, X);
+
+  // std::cout << "Number of train samples: " << splitResult.trainSamples.rows() << std::endl;
+  // std::cout << "Number of test samples: " << splitResult.testSamples.rows() << std::endl;
+  // std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
+  // std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
+
+  std::cout << "Train samples: " << std::endl << splitResult.trainSamples << std::endl;
+  std::cout << "Test samples: " << std::endl << splitResult.testSamples << std::endl;
+  std::cout << "Train labels: " << std::endl << splitResult.trainLabels << std::endl;
+  std::cout << "Test labels: " << std::endl << splitResult.testLabels << std::endl;
 
   // KNN knn;
 }

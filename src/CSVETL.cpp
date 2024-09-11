@@ -118,3 +118,43 @@ Eigen::VectorXd CSVETL::extractLabels(size_t labelColumn) {
 
   return vector;
 }
+
+CSVETL::DataSplitResult CSVETL::splitData(Eigen::VectorXd labels, Eigen::MatrixXd samples, float testSize) {
+  size_t dataSize = labels.rows();
+
+  std::vector<size_t> indexes(dataSize);
+
+  std::iota(indexes.begin(), indexes.end(), 0);
+
+  std::shuffle(indexes.begin(), indexes.end(), std::random_device());
+
+  size_t testDataSize = (size_t) (dataSize * testSize);
+
+  size_t trainDataSize = dataSize - testDataSize;
+
+  Eigen::VectorXd trainLabels(trainDataSize);
+  Eigen::VectorXd testLabels(testDataSize);
+  Eigen::MatrixXd trainSamples(trainDataSize, samples.cols());
+  Eigen::MatrixXd testSamples(testDataSize, samples.cols());
+
+  for (size_t i = 0; i < trainDataSize; i++) {
+    size_t index = indexes[i];
+    trainLabels.row(i) = labels.row(index);
+    trainSamples.row(i) = samples.row(index);
+  }
+
+  for (size_t i = 0; i < testDataSize; i++) {
+    size_t index = indexes[i + trainDataSize];
+    testLabels.row(i) = labels.row(index);
+    testSamples.row(i) = samples.row(index);
+  }
+
+  DataSplitResult result;
+  
+  result.testLabels = testLabels;
+  result.trainLabels = trainLabels;
+  result.testSamples = testSamples;
+  result.trainSamples = trainSamples;
+  
+  return result;
+}
