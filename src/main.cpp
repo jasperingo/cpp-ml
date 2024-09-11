@@ -42,10 +42,15 @@ int main(int argc, char* argv[]) {
   // std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
   // std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
 
-  std::cout << "Train samples: " << std::endl << splitResult.trainSamples << std::endl;
-  std::cout << "Test samples: " << std::endl << splitResult.testSamples << std::endl;
-  std::cout << "Train labels: " << std::endl << splitResult.trainLabels << std::endl;
-  std::cout << "Test labels: " << std::endl << splitResult.testLabels << std::endl;
+  // std::cout << "Train samples: " << std::endl << splitResult.trainSamples << std::endl;
+  // std::cout << "Test samples: " << std::endl << splitResult.testSamples << std::endl;
+  // std::cout << "Train labels: " << std::endl << splitResult.trainLabels << std::endl;
+  // std::cout << "Test labels: " << std::endl << splitResult.testLabels << std::endl;
+
+  Eigen::Block<Eigen::MatrixXd, 1> row0 = splitResult.trainSamples.row(0);
+
+  // std::cout << "Row 0: " << std::endl << row0.pow(1) << std::endl;
+
 
   // KNN knn;
 }
