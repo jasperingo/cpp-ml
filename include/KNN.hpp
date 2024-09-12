@@ -1,7 +1,10 @@
 #ifndef CPP_ML_KNN_H_
 #define CPP_ML_KNN_H_
 
+#include <cmath>
+#include <map>
 #include <vector>
+#include <algorithm>
 #include <Eigen/Dense>
 
 class KNN {
@@ -9,16 +12,16 @@ class KNN {
   Eigen::VectorXd trainLabels;
   Eigen::MatrixXd trainSamples;
 
-  double predict(Eigen::Block<Eigen::MatrixXd, 1> features);
+  double predict(Eigen::VectorXd& features);
 
-  double euclideanDistance(Eigen::Block<Eigen::MatrixXd, 1> test, Eigen::Block<Eigen::MatrixXd, 1> train);
+  double euclideanDistance(Eigen::VectorXd& test, Eigen::VectorXd& train);
 
 public:
   KNN(size_t K) : K(K) {}
 
-  void fit(Eigen::VectorXd labels, Eigen::MatrixXd samples);
+  void fit(Eigen::VectorXd& labels, Eigen::MatrixXd& samples);
 
-  Eigen::VectorXd predict(Eigen::MatrixXd samples);
+  Eigen::VectorXd predict(Eigen::MatrixXd& samples);
 };
 
 #endif /* CPP_ML_KNN_H_ */

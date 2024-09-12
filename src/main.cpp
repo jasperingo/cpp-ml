@@ -47,9 +47,18 @@ int main(int argc, char* argv[]) {
   // std::cout << "Train labels: " << std::endl << splitResult.trainLabels << std::endl;
   // std::cout << "Test labels: " << std::endl << splitResult.testLabels << std::endl;
 
-  Eigen::Block<Eigen::MatrixXd, 1> row0 = splitResult.trainSamples.row(0);
+  Eigen::VectorXd row0 = splitResult.trainSamples.row(0);
+  Eigen::VectorXd row1 = splitResult.trainSamples.row(1);
 
-  // std::cout << "Row 0: " << std::endl << row0.pow(1) << std::endl;
+  Eigen::ArrayXd row0ToPow = row0.array().pow(1.0);
+
+  std::cout << "Row 0: " << std::endl << row0 << std::endl;
+  std::sort(row0.data(), row0.data() + row0.size());
+  std::cout << "Row 0 sorted: " << std::endl << row0 << std::endl;
+
+  // std::cout << "Row 1: " << std::endl << row1 << std::endl;
+  // std::cout << "Row to Pow: " << std::endl << row0ToPow << std::endl;
+  // std::cout << "Row to Pow summed: " << std::endl << (row0ToPow.sum()) << std::endl;
 
 
   // KNN knn;
