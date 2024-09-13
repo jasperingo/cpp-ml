@@ -3,8 +3,6 @@
 
 #include <cmath>
 #include <map>
-#include <vector>
-#include <algorithm>
 #include <Eigen/Dense>
 
 class KNN {

@@ -37,29 +37,47 @@ int main(int argc, char* argv[]) {
 
   CSVETL::DataSplitResult splitResult = csvETL.splitData(y, X);
 
-  // std::cout << "Number of train samples: " << splitResult.trainSamples.rows() << std::endl;
-  // std::cout << "Number of test samples: " << splitResult.testSamples.rows() << std::endl;
-  // std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
-  // std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
+  std::cout << "Number of train samples: " << splitResult.trainSamples.rows() << std::endl;
+  std::cout << "Number of test samples: " << splitResult.testSamples.rows() << std::endl;
+  std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
+  std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
 
   // std::cout << "Train samples: " << std::endl << splitResult.trainSamples << std::endl;
   // std::cout << "Test samples: " << std::endl << splitResult.testSamples << std::endl;
   // std::cout << "Train labels: " << std::endl << splitResult.trainLabels << std::endl;
   // std::cout << "Test labels: " << std::endl << splitResult.testLabels << std::endl;
 
-  Eigen::VectorXd row0 = splitResult.trainSamples.row(0);
-  Eigen::VectorXd row1 = splitResult.trainSamples.row(1);
-
-  Eigen::ArrayXd row0ToPow = row0.array().pow(1.0);
-
-  std::cout << "Row 0: " << std::endl << row0 << std::endl;
-  std::sort(row0.data(), row0.data() + row0.size());
-  std::cout << "Row 0 sorted: " << std::endl << row0 << std::endl;
-
   // std::cout << "Row 1: " << std::endl << row1 << std::endl;
   // std::cout << "Row to Pow: " << std::endl << row0ToPow << std::endl;
   // std::cout << "Row to Pow summed: " << std::endl << (row0ToPow.sum()) << std::endl;
 
+  KNN knn(3);
 
-  // KNN knn;
+  knn.fit(splitResult.trainLabels, splitResult.trainSamples);
+
+  Eigen::VectorXd predictions = knn.predict(splitResult.testSamples);
+
+  std::cout << "Predictions: " << std::endl << predictions << std::endl;
+  std::cout << "Number of predictions: " << predictions.rows() << std::endl;
+
+  int correctCount = 0;
+  int incorrectCount = 0;
+
+  for (int i = 0; i < predictions.rows(); i++) {
+    double prediction = predictions(i);
+    double testLabel = splitResult.testLabels(i);
+
+    if (prediction == testLabel) {
+      correctCount++;
+    } else {
+      incorrectCount++;
+    }
+  }
+
+  double accuracy = ((double) correctCount) / splitResult.testLabels.rows();
+
+  std::cout << "Model accuracy: " << accuracy << std::endl;
+  std::cout << "Model accuracy %: " << (accuracy * 100) << std::endl;
+  std::cout << "Number of correct predictions: " << correctCount << std::endl;
+  std::cout << "Number of incorrect predictions: " << incorrectCount << std::endl;
 }

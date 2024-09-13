@@ -17,12 +17,16 @@ Eigen::VectorXd KNN::predict(Eigen::MatrixXd& samples) {
 }
 
 double KNN::predict(Eigen::VectorXd& features) {
+  // calculate distance
+
   Eigen::VectorXd distances(trainSamples.rows());
 
   for (int i = 0; i < trainSamples.rows(); i++) {
     Eigen::VectorXd row = trainSamples.row(i);
     distances(i) = euclideanDistance(features, row);
   }
+
+  // get the closest K neighbours
 
   std::map<int, double> kIndexes; 
 
@@ -32,28 +36,63 @@ double KNN::predict(Eigen::VectorXd& features) {
     if (kIndexes.size() < K) {
       kIndexes.insert(std::pair<int, double>(i, distance));
     } else {
-      auto it = kIndexes.begin();
+      int indexToReplace = -1;
+      double indexToReplaceDistance = 0.0;
 
-      while (it != kIndexes.end()) {
-         if (distance < it->second) {
-          kIndexes.erase(it);
-          kIndexes.insert(std::pair<int, double>(i, distance));
-          break;
-        } else {
-          it++;
+      for (std::pair<int, double> index: kIndexes) {
+        if (distance < index.second && (indexToReplace == -1 || (indexToReplaceDistance < index.second))) {
+          indexToReplace = index.first;
+          indexToReplaceDistance = index.second;
         }
+      }
+
+      if (indexToReplace > -1) {
+        kIndexes.erase(indexToReplace);
+        kIndexes.insert(std::pair<int, double>(i, distance));
       }
     }
   }
 
+  // get the labels of the closest K neighbours
+
   Eigen::VectorXd kLabels(kIndexes.size());
 
-  // for (int i = 0; i < kIndexes.size(); i++) {
-  //   kLabels(i) = trainLabels(kIndexes[i].first);
-  // }
+  int i = 0;
 
+  for (std::pair<int, double> index: kIndexes) {
+    kLabels(i) = trainLabels(index.first);
+    i++;
+  }
 
-  return 0.0;
+  // get the frequency of each closest labels
+
+  std::map<double, int> mostCommonLabels;
+
+  for (int i = 0; i < kLabels.rows(); i++) {
+    double label = kLabels(i);
+
+    std::map<double, int>::iterator it = mostCommonLabels.find(label);
+
+    if (it == mostCommonLabels.end()) {
+      mostCommonLabels.insert(std::pair<double, int>(label, 1));
+    } else {
+      it->second = it->second + 1;
+    }
+  }
+
+  // get the label with highest frequency (majority vote)
+
+  double mostCommonLabel = 0.0;
+  int mostCommonLabelCount = 0;
+
+  for (std::pair<double, int> label: mostCommonLabels) {
+     if (label.second > mostCommonLabelCount) {
+        mostCommonLabel = label.first;
+        mostCommonLabelCount = label.second;
+    }
+  }
+
+  return mostCommonLabel;
 }
 
 double KNN::euclideanDistance(Eigen::VectorXd& test, Eigen::VectorXd& train) {
