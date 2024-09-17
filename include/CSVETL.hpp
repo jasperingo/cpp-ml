@@ -6,6 +6,7 @@
 #include <numeric>
 #include <algorithm>
 #include <random>
+#include <map>
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -15,9 +16,15 @@
 class CSVETL {
   char delimiter;
   std::string filePath;
-  std::vector<std::vector<std::string>> data; 
+  std::vector<std::vector<std::string>> data;
+  Eigen::VectorXd labels;
+  Eigen::MatrixXd features;
 
-  int findIndexInColumns(size_t column, size_t columns[], size_t columnsLength);
+  bool loadFile();
+
+  bool extractLabels(unsigned int labelColumn, bool labelColumIsDigit);
+
+  bool extractSamples(unsigned int sampleColumns[], bool sampleColumnsAreDigits[], size_t sampleColumnsLength);
 
 public:
   struct DataSplitResult {
@@ -27,15 +34,19 @@ public:
     Eigen::MatrixXd testSamples;
   };
 
-  CSVETL(std::string filePath, char delimiter = ',') : filePath(filePath), delimiter(delimiter) {}
+  CSVETL(std::string& filePath, char delimiter = ',') : filePath(filePath), delimiter(delimiter) {}
 
-  bool load();
+  Eigen::VectorXd& getLabels() {
+    return labels;
+  }
 
-  Eigen::VectorXd extractLabels(size_t labelColumn);
+  Eigen::MatrixXd& getSamples() {
+    return features;
+  }
 
-  Eigen::MatrixXd extractSamples(size_t sampleColumns[], size_t sampleColumnsLength);
+  bool load(unsigned int labelColumn, bool labelColumIsDigit, unsigned int sampleColumns[], bool sampleColumnsAreDigits[], size_t sampleColumnsLength);
 
-  DataSplitResult splitData(Eigen::VectorXd labels, Eigen::MatrixXd samples, float testSize = 0.2);
+  DataSplitResult splitData(Eigen::VectorXd& labels, Eigen::MatrixXd& samples, float testSize = 0.2);
 };
 
 #endif /* CPP_ML_CSVETL_H_ */

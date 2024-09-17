@@ -9,7 +9,7 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 add_executable(CppML src/main.cpp)
 
-target_sources(CppML PUBLIC src/KNN.cpp src/CSVETL.cpp)
+target_sources(CppML PUBLIC src/KNN.cpp src/CSVETL.cpp src/Algorithms.cpp)
 
 target_link_libraries(CppML Eigen3::Eigen)
 

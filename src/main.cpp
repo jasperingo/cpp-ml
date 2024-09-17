@@ -1,83 +1,163 @@
+#include <stdlib.h>
+#include <algorithm>
 #include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
 #include <Eigen/Dense>
 #include "KNN.hpp"
 #include "CSVETL.hpp"
+#include "Algorithms.hpp"
 
 int main(int argc, char* argv[]) {
-   if (argc < 2) {
-    std::cout << "Name of CSV file not provided" << std::endl;
+  if (argc < 7) {
+    std::cout << "All options not provided" << std::endl;
     return 1;
   }
 
-  CSVETL csvETL(argv[1]);
+  // doKNN(argv[1]);
+  
+  std::cout << "CMD args count: " << argc << std::endl;
 
-  if (!csvETL.load()) {
-    std::cout << "Dataset: " << argv[1] << " not loaded " << std::endl;
+  std::string algorithmOption = "--algorithm";
+  std::string datasetOption = "--dataset";
+  std::string labelColumnOption = "--label-column";
+  std::string labelColumnIsDigitOption = "--label-column-digit";
+  std::string featureColumnsOption = "--feature-columns";
+  std::string featureColumnsAreDigitOption = "--feature-columns-digit";
+
+  std::string algorithm;
+  std::string dataset;
+  std::string labelColumn;
+  std::string labelColumnIsDigit;
+  std::string featureColumns;
+  std::string featureColumnsAreDigit;
+
+  char ** itr;
+
+  char** end = argv + argc;
+
+  itr = std::find(argv, end, algorithmOption);
+
+  if (itr != end && ++itr != end) {
+    algorithm = *itr;
+  } else {
+    std::cout << algorithmOption << " option not found" << std::endl;
     return 1;
   }
 
-  std::cout << "Dataset: " << argv[1] << " loaded " << std::endl;
+  itr = std::find(argv, end, datasetOption);
 
-  size_t sampleColumns[] = { 1, 2, 3, 4 };
+  if (itr != end && ++itr != end) {
+    dataset = *itr;
+  } else {
+    std::cout << datasetOption << " option not found" << std::endl;
+    return 1;
+  }
 
-  Eigen::MatrixXd X = csvETL.extractSamples(sampleColumns, 4);
+  itr = std::find(argv, end, labelColumnOption);
 
-  Eigen::VectorXd y = csvETL.extractLabels(5);
+  if (itr != end && ++itr != end) {
+    labelColumn = *itr;
+  } else {
+    std::cout << labelColumnOption << " option not found" << std::endl;
+    return 1;
+  }
 
-  // std::cout << "Samples:" << std::endl << std::endl;
+  itr = std::find(argv, end, labelColumnIsDigitOption);
 
-  // std::cout << X << std::endl << std::endl;
+  if (itr != end && ++itr != end) {
+    labelColumnIsDigit = *itr;
+  } else {
+    std::cout << labelColumnIsDigitOption << " option not found" << std::endl;
+    return 1;
+  }
 
-  // std::cout << "Labels:" << std::endl << std::endl;
+  itr = std::find(argv, end, featureColumnsOption);
 
-  // std::cout << y << std::endl << std::endl;
+  if (itr != end && ++itr != end) {
+    featureColumns = *itr;
+  } else {
+    std::cout << featureColumnsOption << " option not found" << std::endl;
+    return 1;
+  }
 
-  std::cout << "Number of samples: " << X.rows() << std::endl;
-  std::cout << "Number of features: " << X.cols() << std::endl;
+  itr = std::find(argv, end, featureColumnsAreDigitOption);
 
-  CSVETL::DataSplitResult splitResult = csvETL.splitData(y, X);
+  if (itr != end && ++itr != end) {
+    featureColumnsAreDigit = *itr;
+  } else {
+    std::cout << featureColumnsAreDigitOption << " option not found" << std::endl;
+    return 1;
+  }
 
-  std::cout << "Number of train samples: " << splitResult.trainSamples.rows() << std::endl;
-  std::cout << "Number of test samples: " << splitResult.testSamples.rows() << std::endl;
-  std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
-  std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
+  std::string optionPart;
+  std::vector<std::string> featureColumnsSplit;
+  std::stringstream featureColumnsStream(featureColumns);
 
-  // std::cout << "Train samples: " << std::endl << splitResult.trainSamples << std::endl;
-  // std::cout << "Test samples: " << std::endl << splitResult.testSamples << std::endl;
-  // std::cout << "Train labels: " << std::endl << splitResult.trainLabels << std::endl;
-  // std::cout << "Test labels: " << std::endl << splitResult.testLabels << std::endl;
+  while(std::getline(featureColumnsStream, optionPart, ',')) {
+    featureColumnsSplit.push_back(optionPart);
+  }
 
-  // std::cout << "Row 1: " << std::endl << row1 << std::endl;
-  // std::cout << "Row to Pow: " << std::endl << row0ToPow << std::endl;
-  // std::cout << "Row to Pow summed: " << std::endl << (row0ToPow.sum()) << std::endl;
+  std::vector<std::string> featureColumnsIsDigitSplit;
+  std::stringstream featureColumnsIsDigitStream(featureColumnsAreDigit);
 
-  KNN knn(3);
+  while(std::getline(featureColumnsIsDigitStream, optionPart, ',')) {
+    featureColumnsIsDigitSplit.push_back(optionPart);
+  }
 
-  knn.fit(splitResult.trainLabels, splitResult.trainSamples);
+  const size_t featureColumnsSize = featureColumnsSplit.size();
+  const size_t featureColumnsIsDigitSize = featureColumnsIsDigitSplit.size();
 
-  Eigen::VectorXd predictions = knn.predict(splitResult.testSamples);
+  if (featureColumnsSize != featureColumnsIsDigitSize) {
+    std::cout << featureColumnsOption << " size: " << featureColumnsSize 
+      << " is not equal to " << featureColumnsAreDigitOption << " size: " << featureColumnsIsDigitSize << std::endl;
+    return 1;
+  }
 
-  std::cout << "Predictions: " << std::endl << predictions << std::endl;
-  std::cout << "Number of predictions: " << predictions.rows() << std::endl;
+  unsigned int featureColumnsDigits[100];
+  bool featureColumnsAreDigitBools[100];
 
-  int correctCount = 0;
-  int incorrectCount = 0;
+  for (size_t i = 0; i < featureColumnsSize; i++) {
+    std::string columnString = featureColumnsSplit[i];
+    std::string columnIsDigitString = featureColumnsIsDigitSplit[i];
 
-  for (int i = 0; i < predictions.rows(); i++) {
-    double prediction = predictions(i);
-    double testLabel = splitResult.testLabels(i);
+    double column = std::atof(columnString.c_str());
 
-    if (prediction == testLabel) {
-      correctCount++;
+    if (column == 0 && columnString != "0") {
+      std::cout << "None digit value provided for " << featureColumnsOption << " = " << columnString << std::endl;
+      return 1;
     } else {
-      incorrectCount++;
+      featureColumnsDigits[i] = (unsigned int) column;
+    }
+
+    if (columnIsDigitString == "1" || columnIsDigitString == "true") {
+      featureColumnsAreDigitBools[i] = true;
+    } else if (columnIsDigitString == "0" || columnIsDigitString == "false") {
+      featureColumnsAreDigitBools[i] = false;
+    } else {
+      std::cout << "None boolean value provided for " << featureColumnsAreDigitOption << " = " << columnIsDigitString << std::endl;
+      return 1;
     }
   }
 
-  double accuracy = ((double) correctCount) / splitResult.testLabels.rows();
+  bool labelColumnIsDigitBool;
 
-  std::cout << "Model accuracy: " << accuracy << std::endl;
-  std::cout << "Model accuracy %: " << (accuracy * 100) << std::endl;
-  std::cout << "Number of correct predictions: " << correctCount << std::endl;
-  std::cout << "Number of incorrect predictions: " << incorrectCount << std::endl;
+  double labelColumnDigit = std::atof(labelColumn.c_str());
+
+  if (labelColumnDigit == 0 && labelColumn != "0") {
+    std::cout << "None digit value provided for " << labelColumnOption << std::endl;
+    return 1;
+  }
+
+  if (labelColumnIsDigit == "1" || labelColumnIsDigit == "true") {
+    labelColumnIsDigitBool = true;
+  } else if (labelColumnIsDigit == "0" || labelColumnIsDigit == "false") {
+    labelColumnIsDigitBool = false;
+  } else {
+    std::cout << "None boolean value provided for " << labelColumnOption << std::endl;
+    return 1;
+  }
+
+  std::cout << "Done " << std::endl;
 }

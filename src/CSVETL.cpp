@@ -1,24 +1,12 @@
 #include "CSVETL.hpp"
 
-int CSVETL::findIndexInColumns(size_t column, size_t columns[], size_t columnsLength) {
-  for (int i = 0; i < columnsLength; i++) {
-    if (columns[i] == column) {
-      return i;
-    }
-  }
-
-  return -1;
-}
-
-bool CSVETL::load() {
+bool CSVETL::loadFile() {
   std::ifstream csvFile(filePath);
 
   if (!csvFile.is_open()) {
-    std::cout << "File was not opened" << std::endl;
+    std::cout << "Dataset file could not be opened" << std::endl;
     return false;
   }
-
-  std::cout << "File was opened" << std::endl;
 
   std::string fileLine;
   
@@ -43,64 +31,32 @@ bool CSVETL::load() {
   
   csvFile.close();
 
-  std::cout << "Loaded: " << data.size() << " rows of data" << std::endl;
-
   return true;
 }
 
-Eigen::MatrixXd CSVETL::extractSamples(size_t sampleColumns[], size_t sampleColumnsLength) {
-  if (data.size() == 0 || data[0].size() == 0) {
-    return Eigen::MatrixXd();
+bool CSVETL::extractLabels(unsigned int labelColumn, bool labelColumIsDigit) {
+  if (data[0].size() >= labelColumn) {
+    std::cout << "Label column: " << labelColumn << " exceeds the column indexes in the provided dataset" << std::endl;
+    return false;
   }
 
   size_t rowSize = data.size();
-
-  size_t colSize = data[0].size();
-
-  Eigen::MatrixXd matrix(rowSize, sampleColumnsLength);
-
-  for (int i = 0; i < rowSize; i++) {
-    for (int j = 0; j < colSize; j++) {
-      int columnIndex = findIndexInColumns(j, sampleColumns, sampleColumnsLength);
-
-      if (columnIndex == -1) {
-        continue;
-      }
-
-      matrix(i, columnIndex) = std::atof(data[i][j].c_str());
-    }
-  }
-
-  return matrix;
-}
-
-Eigen::VectorXd CSVETL::extractLabels(size_t labelColumn) {
-  if (data.size() == 0 || data[0].size() == 0) {
-    return Eigen::VectorXd();
-  }
-
-  size_t rowSize = data.size();
-
-  size_t colSize = data[0].size();
 
   Eigen::VectorXd vector(rowSize);
 
-  std::vector<std::string> columnValues;
+  std::vector<std::string> noneDigitColumnValues;
 
   for (int i = 0; i < rowSize; i++) {
-    for (int j = 0; j < colSize; j++) {
-      if (j != labelColumn) {
-        continue;
-      }
+    std::string columnValue = data[i][labelColumn];
 
+    if (labelColumIsDigit) {
+      vector(i) = std::atof(columnValue.c_str());
+    } else {
       size_t column;
-
-      std::string columnValue = data[i][j];
-
       bool columnFound = false;
 
-      for (size_t k = 0; k < columnValues.size(); k++) {
-        if (columnValue == columnValues[k]) {
+      for (size_t k = 0; k < noneDigitColumnValues.size(); k++) {
+        if (columnValue == noneDigitColumnValues[k]) {
           column = k;
           columnFound = true;
           break;
@@ -108,18 +64,103 @@ Eigen::VectorXd CSVETL::extractLabels(size_t labelColumn) {
       }
 
       if (!columnFound) {
-        column = columnValues.size();
-        columnValues.push_back(columnValue);
+        column = noneDigitColumnValues.size();
+        noneDigitColumnValues.push_back(columnValue);
       }
 
       vector(i) = (double) column;
     }
   }
 
-  return vector;
+  labels = vector;
+
+  return true;
 }
 
-CSVETL::DataSplitResult CSVETL::splitData(Eigen::VectorXd labels, Eigen::MatrixXd samples, float testSize) {
+bool CSVETL::extractSamples(unsigned int sampleColumns[], bool sampleColumnsAreDigits[], size_t sampleColumnsLength) {
+  size_t colSize = data[0].size();
+
+  for (size_t i = 0; i < sampleColumnsLength; i++) {
+    if (colSize >= sampleColumns[i]) {
+      std::cout << "Sample column: " << sampleColumns[i] << " exceeds the column indexes in the provided dataset" << std::endl;
+      return false;
+    }
+  }
+
+  size_t rowSize = data.size();
+
+  Eigen::MatrixXd matrix(rowSize, sampleColumnsLength);
+
+  std::map<int, std::vector<std::string>> noneDigitColumnValues;
+
+  for (int i = 0; i < rowSize; i++) {
+    for (int j = 0; j < sampleColumnsLength; j++) {
+      int columnIndex = sampleColumns[j];
+      bool columnIsDigit = sampleColumnsAreDigits[j];
+      std::string columnValue = data[i][columnIndex];
+
+      if (columnIsDigit) {
+        matrix(i, j) = std::atof(columnValue.c_str());
+      } else {
+        std::map<int, std::vector<std::string>>::iterator itr = noneDigitColumnValues.find(columnIndex);
+
+        if (itr == noneDigitColumnValues.end()) {
+          std::vector<std::string> noneDigitColumnValue;
+          noneDigitColumnValue.push_back(columnValue);
+          noneDigitColumnValues.insert(std::pair<int, std::vector<std::string>>(columnIndex, noneDigitColumnValue));
+          matrix(i, j) = 0.0;
+        } else {
+          size_t column;
+          bool columnFound = false;
+
+          for (size_t k = 0; k < itr->second.size(); k++) {
+            if (columnValue == itr->second[k]) {
+              column = k;
+              columnFound = true;
+              break;
+            }
+          }
+
+          if (!columnFound) {
+            column = itr->second.size();
+            itr->second.push_back(columnValue);
+          }
+
+          matrix(i, j) = (double) column;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
+bool CSVETL::load(
+  unsigned int labelColumn, 
+  bool labelColumIsDigit, 
+  unsigned int sampleColumns[], 
+  bool sampleColumnsAreDigits[], 
+  size_t sampleColumnsLength
+) {
+
+  if (!loadFile()) {
+    return false;
+  }
+
+  std::cout << "Loaded: " << data.size() << " rows of data" << std::endl;
+
+  if (!extractLabels(labelColumn, labelColumIsDigit)) {
+    return false;
+  }
+
+  if (!extractSamples(sampleColumns, sampleColumnsAreDigits, sampleColumnsLength)) {
+    return false;
+  }
+
+  return true;
+}
+
+CSVETL::DataSplitResult CSVETL::splitData(Eigen::VectorXd& labels, Eigen::MatrixXd& samples, float testSize) {
   size_t dataSize = labels.rows();
 
   std::vector<size_t> indexes(dataSize);
