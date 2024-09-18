@@ -24,7 +24,7 @@ class CSVETL {
 
   bool extractLabels(unsigned int labelColumn, bool labelColumIsDigit);
 
-  bool extractSamples(unsigned int sampleColumns[], bool sampleColumnsAreDigits[], size_t sampleColumnsLength);
+  bool extractFeatures(std::vector<unsigned int> featureColumns, std::vector<bool> featureColumnsAreDigits);
 
 public:
   struct DataSplitResult {
@@ -40,11 +40,11 @@ public:
     return labels;
   }
 
-  Eigen::MatrixXd& getSamples() {
+  Eigen::MatrixXd& getFeatures() {
     return features;
   }
 
-  bool load(unsigned int labelColumn, bool labelColumIsDigit, unsigned int sampleColumns[], bool sampleColumnsAreDigits[], size_t sampleColumnsLength);
+  bool load(unsigned int labelColumn, bool labelColumIsDigit, std::vector<unsigned int> featureColumns, std::vector<bool> featureColumnsAreDigits);
 
   DataSplitResult splitData(Eigen::VectorXd& labels, Eigen::MatrixXd& samples, float testSize = 0.2);
 };

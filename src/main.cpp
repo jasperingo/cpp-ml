@@ -7,7 +7,7 @@
 #include <Eigen/Dense>
 #include "KNN.hpp"
 #include "CSVETL.hpp"
-#include "Algorithms.hpp"
+#include "KNNHandler.hpp"
 
 int main(int argc, char* argv[]) {
   if (argc < 7) {
@@ -115,8 +115,8 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  unsigned int featureColumnsDigits[100];
-  bool featureColumnsAreDigitBools[100];
+  std::vector<unsigned int> featureColumnsDigits;
+  std::vector<bool> featureColumnsAreDigitBools;
 
   for (size_t i = 0; i < featureColumnsSize; i++) {
     std::string columnString = featureColumnsSplit[i];
@@ -128,13 +128,13 @@ int main(int argc, char* argv[]) {
       std::cout << "None digit value provided for " << featureColumnsOption << " = " << columnString << std::endl;
       return 1;
     } else {
-      featureColumnsDigits[i] = (unsigned int) column;
+      featureColumnsDigits.push_back((unsigned int) column);
     }
 
     if (columnIsDigitString == "1" || columnIsDigitString == "true") {
-      featureColumnsAreDigitBools[i] = true;
+      featureColumnsAreDigitBools.push_back(true);
     } else if (columnIsDigitString == "0" || columnIsDigitString == "false") {
-      featureColumnsAreDigitBools[i] = false;
+      featureColumnsAreDigitBools.push_back(false);
     } else {
       std::cout << "None boolean value provided for " << featureColumnsAreDigitOption << " = " << columnIsDigitString << std::endl;
       return 1;
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
 
   bool labelColumnIsDigitBool;
 
-  double labelColumnDigit = std::atof(labelColumn.c_str());
+  unsigned int labelColumnDigit = (unsigned int) std::atof(labelColumn.c_str());
 
   if (labelColumnDigit == 0 && labelColumn != "0") {
     std::cout << "None digit value provided for " << labelColumnOption << std::endl;
@@ -160,4 +160,11 @@ int main(int argc, char* argv[]) {
   }
 
   std::cout << "Done " << std::endl;
+
+  if (algorithm == "KNN") {
+    return handleKNN(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
+  }
+
+  std::cout << "Provided algorithm: " << algorithm << " has no implementation" << std::endl;
+  return 1;
 }

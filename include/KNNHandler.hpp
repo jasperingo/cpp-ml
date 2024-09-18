@@ -1,23 +1,29 @@
-#include "Algorithms.hpp"
+#ifndef CPP_ML_KNN_HANDLER_H_
+#define CPP_ML_KNN_HANDLER_H_
 
-int doKNN(
+#include <string>
+#include <iostream>
+#include <Eigen/Dense>
+#include "KNN.hpp"
+#include "CSVETL.hpp"
+
+int handleKNN(
   std::string datasetPath, 
   unsigned int labelColumn, 
   bool labelColumIsDigit, 
-  unsigned int sampleColumns[], 
-  bool sampleColumnsAreDigits[], 
-  size_t sampleColumnsLength
+  std::vector<unsigned int> featureColumns, 
+  std::vector<bool> featureColumnsAreDigits
 ) {
   CSVETL csvETL(datasetPath);
 
-  if (!csvETL.load(labelColumn, labelColumIsDigit, sampleColumns, sampleColumnsAreDigits, sampleColumnsLength)) {
+  if (!csvETL.load(labelColumn, labelColumIsDigit, featureColumns, featureColumnsAreDigits)) {
     std::cout << "Dataset: " << datasetPath << " not loaded " << std::endl;
     return 1;
   }
 
   std::cout << "Dataset: " << datasetPath << " loaded " << std::endl;
 
-  Eigen::MatrixXd X = csvETL.getSamples();
+  Eigen::MatrixXd X = csvETL.getFeatures();
 
   Eigen::VectorXd y = csvETL.getLabels();
 
@@ -68,3 +74,5 @@ int doKNN(
 
   return 0;
 }
+
+#endif /* CPP_ML_KNN_HANDLER_H_ */
