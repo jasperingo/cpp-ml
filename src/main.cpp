@@ -8,6 +8,7 @@
 #include "KNN.hpp"
 #include "CSVETL.hpp"
 #include "KNNHandler.hpp"
+#include "LinearRegressionHandler.hpp"
 
 int main(int argc, char* argv[]) {
   if (argc < 7) {
@@ -163,6 +164,8 @@ int main(int argc, char* argv[]) {
 
   if (algorithm == "KNN") {
     return handleKNN(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
+  } else if (algorithm == "linear-regression") {
+    return handleLinearRegression(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
   }
 
   std::cout << "Provided algorithm: " << algorithm << " has no implementation" << std::endl;
