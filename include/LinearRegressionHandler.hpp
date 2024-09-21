@@ -27,7 +27,11 @@ int handleLinearRegression(
 
   Eigen::VectorXd y = csvETL.getLabels();
 
-  // std::cout << "Samples:" << std::endl << std::endl;
+  std::cout << "Number of samples: " << X.rows() << std::endl;
+  std::cout << "Number of features: " << X.cols() << std::endl;
+  std::cout << "Number of labels: " << y.size() << std::endl;
+
+  // std::cout << "Features:" << std::endl << std::endl;
 
   // std::cout << X << std::endl << std::endl;
 
@@ -35,17 +39,26 @@ int handleLinearRegression(
 
   // std::cout << y << std::endl << std::endl;
 
-  std::cout << "Number of samples: " << X.rows() << std::endl;
-  std::cout << "Number of features: " << X.cols() << std::endl;
+  CSVETL::DataSplitResult splitResult = csvETL.splitData(y, X);
 
-  // CSVETL::DataSplitResult splitResult = csvETL.splitData(y, X);
+  std::cout << "Number of train samples: " << splitResult.trainSamples.rows() << std::endl;
+  std::cout << "Number of test samples: " << splitResult.testSamples.rows() << std::endl;
+  std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
+  std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
 
-  // std::cout << "Number of train samples: " << splitResult.trainSamples.rows() << std::endl;
-  // std::cout << "Number of test samples: " << splitResult.testSamples.rows() << std::endl;
-  // std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
-  // std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
-
+  LinearRegression linearRegression(5000, 0.000001);
   
+  linearRegression.fit(splitResult.trainLabels, splitResult.trainSamples);
+
+  Eigen::VectorXd predictions = linearRegression.predict(splitResult.testSamples);
+
+  // std::cout << "Predictions: " << predictions << std::endl;
+  // std::cout << "Number of predictions: " << predictions.size() << std::endl;
+
+  double mse = linearRegression.meanSquaredError(splitResult.testLabels, predictions);
+
+  std::cout << "Mean squared error: " << mse << std::endl;
+
   return 0;
 }
 

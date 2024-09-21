@@ -1,6 +1,7 @@
 #ifndef CPP_ML_LINEAR_REGRESSION_H_
 #define CPP_ML_LINEAR_REGRESSION_H_
 
+#include <iostream>
 #include <cmath>
 #include <map>
 #include <Eigen/Dense>
@@ -11,6 +12,8 @@ class LinearRegression {
   unsigned int numberOfIterations;
   Eigen::VectorXd weights;
 
+  Eigen::VectorXd makePredictions(Eigen::MatrixXd& features);
+
 public:
   LinearRegression(unsigned int numberOfIterations, double learningRate) : 
     numberOfIterations(numberOfIterations), 
@@ -19,6 +22,8 @@ public:
   void fit(Eigen::VectorXd& labels, Eigen::MatrixXd& features);
 
   Eigen::VectorXd predict(Eigen::MatrixXd& fetures);
+
+  double meanSquaredError(Eigen::VectorXd& labels, Eigen::VectorXd& predictions);
 };
 
 #endif /* CPP_ML_LINEAR_REGRESSION_H_ */
