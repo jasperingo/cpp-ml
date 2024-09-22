@@ -1,7 +1,6 @@
 #ifndef CPP_ML_LINEAR_REGRESSION_H_
 #define CPP_ML_LINEAR_REGRESSION_H_
 
-#include <iostream>
 #include <cmath>
 #include <map>
 #include <Eigen/Dense>
@@ -19,7 +18,7 @@ public:
     numberOfIterations(numberOfIterations), 
     learningRate(learningRate) {}
 
-  void fit(Eigen::VectorXd& labels, Eigen::MatrixXd& features);
+  Eigen::VectorXd fit(Eigen::VectorXd& labels, Eigen::MatrixXd& features);
 
   Eigen::VectorXd predict(Eigen::MatrixXd& fetures);
 

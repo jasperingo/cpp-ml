@@ -46,18 +46,20 @@ int handleLinearRegression(
   std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
   std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
 
-  LinearRegression linearRegression(5000, 0.000001);
+  LinearRegression linearRegression(2000, 0.0000001);
   
-  linearRegression.fit(splitResult.trainLabels, splitResult.trainSamples);
+  Eigen::VectorXd costs = linearRegression.fit(splitResult.trainLabels, splitResult.trainSamples);
 
   Eigen::VectorXd predictions = linearRegression.predict(splitResult.testSamples);
 
   // std::cout << "Predictions: " << predictions << std::endl;
   // std::cout << "Number of predictions: " << predictions.size() << std::endl;
+  
+  std::cout << "Costs: " << std::endl << costs << std::endl;
 
   double mse = linearRegression.meanSquaredError(splitResult.testLabels, predictions);
 
-  std::cout << "Mean squared error: " << mse << std::endl;
+  std::cout << "Test Mean squared error: " << mse << std::endl;
 
   return 0;
 }

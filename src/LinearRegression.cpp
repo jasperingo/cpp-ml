@@ -6,19 +6,17 @@ Eigen::VectorXd LinearRegression::makePredictions(Eigen::MatrixXd &features) {
   return featuresXWeight + bias;
 }
 
-void LinearRegression::fit(Eigen::VectorXd &labels, Eigen::MatrixXd &features) {
+Eigen::VectorXd LinearRegression::fit(Eigen::VectorXd &labels, Eigen::MatrixXd &features) {
   size_t numberOfSamples = features.rows();
   size_t numberOfFeatures = features.cols();
   bias = 0.0;
-  weights = Eigen::VectorXd(numberOfFeatures);
-
-  for (size_t i = 0; i < numberOfFeatures; i++) {
-    weights(i) = 0;
-  }
+  weights = Eigen::VectorXd::Zero(numberOfFeatures);
 
   double oneDivideSamples = (1.0 / (double) numberOfSamples);
   
   Eigen::MatrixXd featuresTranspose = features.transpose();
+
+  Eigen::VectorXd costs(numberOfIterations);
 
   for (unsigned int i = 0; i < numberOfIterations; i++) {
     Eigen::VectorXd predictions = makePredictions(features);
@@ -30,7 +28,11 @@ void LinearRegression::fit(Eigen::VectorXd &labels, Eigen::MatrixXd &features) {
 
     weights = weights.array() - (learningRate * dw);
     bias = bias - (learningRate * db);
+
+    costs(i) = meanSquaredError(labels, predictions);
   }
+
+  return costs;
 }
 
 Eigen::VectorXd LinearRegression::predict(Eigen::MatrixXd& features) {
