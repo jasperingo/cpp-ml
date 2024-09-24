@@ -66,7 +66,7 @@ bool CSVETL::extractLabels(unsigned int labelColumn, bool labelColumIsDigit) {
       }
 
       if (!columnFound) {
-        column = noneDigitColumnValues.size();
+        column = noneDigitColumnValues.size() + 1;
         noneDigitColumnValues.push_back(columnValue);
       }
 
@@ -124,7 +124,7 @@ bool CSVETL::extractFeatures(std::vector<unsigned int> featureColumns, std::vect
           }
 
           if (!columnFound) {
-            column = itr->second.size();
+            column = itr->second.size() + 1;
             itr->second.push_back(columnValue);
           }
 

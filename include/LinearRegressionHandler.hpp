@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <Eigen/Dense>
+#include <matplot/matplot.h>
 #include "CSVETL.hpp"
 #include "LinearRegression.hpp"
 
@@ -50,16 +51,31 @@ int handleLinearRegression(
   
   Eigen::VectorXd costs = linearRegression.fit(splitResult.trainLabels, splitResult.trainSamples);
 
-  Eigen::VectorXd predictions = linearRegression.predict(splitResult.testSamples);
+  std::cout << "Costs: " << std::endl << costs << std::endl;
+
+  std::vector<double> plotX(splitResult.trainSamples.col(8).data(), splitResult.trainSamples.col(8).data() + splitResult.trainSamples.col(8).size());
+  std::vector<double> plotY(splitResult.trainLabels.data(), splitResult.trainLabels.data() + splitResult.trainLabels.size());
+  std::vector<double> plotLine(costs.data(), costs.data() + costs.size());
+
+  try {
+    matplot::scatter(plotX, plotY);
+    matplot::plot(plotX, plotY, "-o");
+
+    matplot::show();
+  } catch (std::runtime_error& error) {
+    std::cout << "Error: " << error.what() << std::endl;
+  }
+
+  // Eigen::VectorXd predictions = linearRegression.predict(splitResult.testSamples);
 
   // std::cout << "Predictions: " << predictions << std::endl;
   // std::cout << "Number of predictions: " << predictions.size() << std::endl;
   
-  std::cout << "Costs: " << std::endl << costs << std::endl;
+  // std::cout << "Costs: " << std::endl << costs << std::endl;
 
-  double mse = linearRegression.meanSquaredError(splitResult.testLabels, predictions);
+  // double mse = linearRegression.meanSquaredError(splitResult.testLabels, predictions);
 
-  std::cout << "Test Mean squared error: " << mse << std::endl;
+  // std::cout << "Test Mean squared error: " << mse << std::endl;
 
   return 0;
 }
