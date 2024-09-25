@@ -11,14 +11,10 @@
 #include "LinearRegressionHandler.hpp"
 
 int main(int argc, char* argv[]) {
-  if (argc < 7) {
+  if (argc < 13) {
     std::cout << "All options not provided" << std::endl;
     return 1;
   }
-
-  // doKNN(argv[1]);
-  
-  std::cout << "CMD args count: " << argc << std::endl;
 
   std::string algorithmOption = "--algorithm";
   std::string datasetOption = "--dataset";
@@ -26,6 +22,9 @@ int main(int argc, char* argv[]) {
   std::string labelColumnIsDigitOption = "--label-column-digit";
   std::string featureColumnsOption = "--feature-columns";
   std::string featureColumnsAreDigitOption = "--feature-columns-digit";
+
+  std::string learningRateOption = "--learning-rate";
+  std::string maxNumberOfIterationsOption = "--max-iterations";
 
   std::string algorithm;
   std::string dataset;
@@ -160,11 +159,79 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  std::cout << "Done " << std::endl;
-
-  if (algorithm == "KNN") {
+  if (algorithm == "knn") {
     return handleKNN(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
   } else if (algorithm == "linear-regression") {
+    
+    bool learningRateProvided = false;
+    bool maxNumberOfIterationsProvided = false;
+
+    std::string learningRate;
+    std::string maxNumberOfIterations;
+
+    double learningRateDigit;
+    int maxNumberOfIterationsDigit;
+
+    itr = std::find(argv, end, learningRateOption);
+
+    if (itr != end && ++itr != end) {
+      learningRate = *itr;
+      learningRateProvided = true;
+      learningRateDigit = std::atof(learningRate.c_str());
+
+      if (learningRateDigit <= 0) {
+        std::cout << learningRateOption << " cannot be less than 0.1" << std::endl;
+        return 1;
+      }
+    }
+
+    itr = std::find(argv, end, maxNumberOfIterationsOption);
+
+    if (itr != end && ++itr != end) {
+      maxNumberOfIterations = *itr;
+      maxNumberOfIterationsProvided = true;
+
+      maxNumberOfIterationsDigit = (int) std::atof(maxNumberOfIterations.c_str());
+
+      if (maxNumberOfIterationsDigit < 10) {
+        std::cout << maxNumberOfIterationsOption << " cannot be less than 10" << std::endl;
+        return 1;
+      }
+    }
+
+    if (learningRateProvided && maxNumberOfIterationsProvided) {
+      return handleLinearRegression(
+        dataset, 
+        labelColumnDigit, 
+        labelColumnIsDigitBool, 
+        featureColumnsDigits, 
+        featureColumnsAreDigitBools, 
+        learningRateDigit, 
+        maxNumberOfIterationsDigit
+      );
+    }
+
+    if (learningRateProvided) {
+      return handleLinearRegression(
+        dataset, labelColumnDigit, 
+        labelColumnIsDigitBool, 
+        featureColumnsDigits, 
+        featureColumnsAreDigitBools, 
+        learningRateDigit
+        );
+    }
+
+    if (maxNumberOfIterationsProvided) {
+      return handleLinearRegression(
+        dataset, 
+        labelColumnDigit, 
+        labelColumnIsDigitBool, 
+        featureColumnsDigits, 
+        featureColumnsAreDigitBools, 
+        maxNumberOfIterationsDigit
+      );
+    }
+
     return handleLinearRegression(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
   }
 
