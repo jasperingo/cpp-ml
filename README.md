@@ -34,7 +34,7 @@ Path to data set file
 
 **--algorithm**
 
-ML algorithm to used. Values can be any of:
+ML algorithm to use. Values can be any of:
 - knn
 - linear-regression 
 
