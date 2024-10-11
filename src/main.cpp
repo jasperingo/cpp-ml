@@ -9,6 +9,7 @@
 #include "CSVETL.hpp"
 #include "KNNHandler.hpp"
 #include "LinearRegressionHandler.hpp"
+#include "LogisticRegressionHandler.hpp"
 
 int main(int argc, char* argv[]) {
   if (argc < 13) {
@@ -161,7 +162,7 @@ int main(int argc, char* argv[]) {
 
   if (algorithm == "knn") {
     return handleKNN(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
-  } else if (algorithm == "linear-regression") {
+  } else if (algorithm == "linear-regression" || algorithm == "logistic-regression") {
     
     bool learningRateProvided = false;
     bool maxNumberOfIterationsProvided = false;
@@ -199,40 +200,77 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if (learningRateProvided && maxNumberOfIterationsProvided) {
-      return handleLinearRegression(
-        dataset, 
-        labelColumnDigit, 
-        labelColumnIsDigitBool, 
-        featureColumnsDigits, 
-        featureColumnsAreDigitBools, 
-        learningRateDigit, 
-        maxNumberOfIterationsDigit
-      );
-    }
-
-    if (learningRateProvided) {
-      return handleLinearRegression(
-        dataset, labelColumnDigit, 
-        labelColumnIsDigitBool, 
-        featureColumnsDigits, 
-        featureColumnsAreDigitBools, 
-        learningRateDigit
+    if (algorithm == "linear-regression") {
+      if (learningRateProvided && maxNumberOfIterationsProvided) {
+        return handleLinearRegression(
+          dataset, 
+          labelColumnDigit, 
+          labelColumnIsDigitBool, 
+          featureColumnsDigits, 
+          featureColumnsAreDigitBools, 
+          learningRateDigit, 
+          maxNumberOfIterationsDigit
         );
-    }
+      }
 
-    if (maxNumberOfIterationsProvided) {
-      return handleLinearRegression(
-        dataset, 
-        labelColumnDigit, 
-        labelColumnIsDigitBool, 
-        featureColumnsDigits, 
-        featureColumnsAreDigitBools, 
-        maxNumberOfIterationsDigit
-      );
-    }
+      if (learningRateProvided) {
+        return handleLinearRegression(
+          dataset, labelColumnDigit, 
+          labelColumnIsDigitBool, 
+          featureColumnsDigits, 
+          featureColumnsAreDigitBools, 
+          learningRateDigit
+          );
+      }
 
-    return handleLinearRegression(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
+      if (maxNumberOfIterationsProvided) {
+        return handleLinearRegression(
+          dataset, 
+          labelColumnDigit, 
+          labelColumnIsDigitBool, 
+          featureColumnsDigits, 
+          featureColumnsAreDigitBools, 
+          maxNumberOfIterationsDigit
+        );
+      }
+
+      return handleLinearRegression(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
+    } else if (algorithm == "logistic-regression") {
+      if (learningRateProvided && maxNumberOfIterationsProvided) {
+        return handleLogisticRegression(
+          dataset, 
+          labelColumnDigit, 
+          labelColumnIsDigitBool, 
+          featureColumnsDigits, 
+          featureColumnsAreDigitBools, 
+          learningRateDigit, 
+          maxNumberOfIterationsDigit
+        );
+      }
+
+      if (learningRateProvided) {
+        return handleLogisticRegression(
+          dataset, labelColumnDigit, 
+          labelColumnIsDigitBool, 
+          featureColumnsDigits, 
+          featureColumnsAreDigitBools, 
+          learningRateDigit
+          );
+      }
+
+      if (maxNumberOfIterationsProvided) {
+        return handleLogisticRegression(
+          dataset, 
+          labelColumnDigit, 
+          labelColumnIsDigitBool, 
+          featureColumnsDigits, 
+          featureColumnsAreDigitBools, 
+          maxNumberOfIterationsDigit
+        );
+      }
+
+      return handleLogisticRegression(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
+    }
   }
 
   std::cout << "Provided algorithm: " << algorithm << " has no implementation" << std::endl;
