@@ -2,8 +2,6 @@
 #define CPP_ML_LOGISTIC_REGRESSION_H_
 
 #include <iostream>
-#include <cmath>
-#include <map>
 #include <Eigen/Dense>
 
 class LogisticRegression {

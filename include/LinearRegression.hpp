@@ -1,8 +1,6 @@
 #ifndef CPP_ML_LINEAR_REGRESSION_H_
 #define CPP_ML_LINEAR_REGRESSION_H_
 
-#include <cmath>
-#include <map>
 #include <Eigen/Dense>
 
 class LinearRegression {
