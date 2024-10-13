@@ -1,7 +1,7 @@
 #include "LogisticRegression.hpp"
 
-Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::VectorXd &predictions) {
-  return 1 / (1 + (-1 * predictions.array()).exp());
+Eigen::VectorXd LogisticRegression::sigmoid(const Eigen::ArrayXd &predictions) {
+  return 1.0 / (1.0 + (-1.0 * predictions).exp());
 }
 
 Eigen::VectorXd LogisticRegression::makePredictions(const Eigen::MatrixXd &features) {
@@ -11,12 +11,10 @@ Eigen::VectorXd LogisticRegression::makePredictions(const Eigen::MatrixXd &featu
 }
 
 Eigen::VectorXd LogisticRegression::fit(Eigen::VectorXd &labels, Eigen::MatrixXd &features) {
-  size_t numberOfSamples = features.rows();
-  size_t numberOfFeatures = features.cols();
+  const size_t numberOfSamples = features.rows();
+  const size_t numberOfFeatures = features.cols();
   bias = 0.0;
   weights = Eigen::VectorXd::Zero(numberOfFeatures);
-
-  double oneDivideSamples = (1.0 / (double) numberOfSamples);
   
   Eigen::MatrixXd featuresTranspose = features.transpose();
 
@@ -27,8 +25,8 @@ Eigen::VectorXd LogisticRegression::fit(Eigen::VectorXd &labels, Eigen::MatrixXd
 
     Eigen::VectorXd predictionsSubtractLabels = predictions - labels;
 
-    double dw = oneDivideSamples * (featuresTranspose * predictionsSubtractLabels).sum();
-    double db = oneDivideSamples * predictionsSubtractLabels.sum();
+    double dw = (1.0 / ((double) numberOfSamples)) * (featuresTranspose * predictionsSubtractLabels).sum();
+    double db = (1.0 / ((double) numberOfSamples)) * predictionsSubtractLabels.sum();
 
     weights = weights.array() - (learningRate * dw);
     bias = bias - (learningRate * db);
@@ -39,7 +37,7 @@ Eigen::VectorXd LogisticRegression::fit(Eigen::VectorXd &labels, Eigen::MatrixXd
       std::cout << "Cost after " << i << " iterations: " << costs(i) << std::endl;
     }
   }
-  
+
   std::cout << "Cost after all iterations: " << costs(numberOfIterations - 1) << std::endl;
 
   return costs;
@@ -53,5 +51,5 @@ double LogisticRegression::crossEntropy(Eigen::VectorXd &labels, Eigen::VectorXd
   Eigen::RowVectorXd predictionsTranspose = predictions.transpose();
   Eigen::RowVectorXd predictionsTransposeLog = predictionsTranspose.array().log();
   Eigen::RowVectorXd predictionsTransposeLogMinusOne = (1.0 - predictionsTranspose.array()).log();
-  return -(((labels * predictionsTransposeLog)) + ((1.0 - labels.array()).matrix() * predictionsTransposeLogMinusOne)).mean();
+  return -((1.0 / ((double) labels.size())) * (((labels * predictionsTransposeLog)) + ((1.0 - labels.array()).matrix() * predictionsTransposeLogMinusOne)).sum());
 }

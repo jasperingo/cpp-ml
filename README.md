@@ -6,6 +6,7 @@ Implementations of machine learning algorithms.
 
 - K-Nearest Neighbour (KNN)
 - Linear Regression
+- Logistic Regression
 
 ## Dependencies
 
@@ -37,6 +38,7 @@ Path to data set file
 ML algorithm to use. Values can be any of:
 - knn
 - linear-regression 
+- logistic-regression 
 
 `--algorithm knn`
 

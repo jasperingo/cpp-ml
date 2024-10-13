@@ -1,6 +1,7 @@
 #ifndef CPP_ML_LOGISTIC_REGRESSION_HANDLER_H_
 #define CPP_ML_LOGISTIC_REGRESSION_HANDLER_H_
 
+#include <numeric>
 #include <string>
 #include <iostream>
 #include <Eigen/Dense>
@@ -55,14 +56,15 @@ int handleLogisticRegression(
 
   Eigen::VectorXd predictions = logisticRegression.predict(splitResult.testSamples);
 
-  std::cout << "Predictions: " << predictions << std::endl;
+  Eigen::VectorXd predictionX(predictions.size());
 
   int correctCount = 0;
   int incorrectCount = 0;
 
-  for (int i = 0; i < predictions.rows(); i++) {
+  for (int i = 0; i < predictions.size(); i++) {
     double prediction = predictions(i) > 0.5 ? 1 : 0;
     double testLabel = splitResult.testLabels(i);
+    predictionX(i) = prediction;
 
     if (prediction == testLabel) {
       correctCount++;
@@ -71,40 +73,45 @@ int handleLogisticRegression(
     }
   }
 
-   double accuracy = ((double) correctCount) / splitResult.testLabels.rows();
+  // std::cout << "Predictions: " << predictionX << std::endl;
+
+  double accuracy = ((double) correctCount) / splitResult.testLabels.size();
 
   std::cout << "Model accuracy: " << accuracy << std::endl;
   std::cout << "Model accuracy %: " << (accuracy * 100) << std::endl;
   std::cout << "Number of correct predictions: " << correctCount << std::endl;
   std::cout << "Number of incorrect predictions: " << incorrectCount << std::endl;
 
-  // std::cout << "Labels: " << splitResult.testLabels << std::endl;
-  // std::cout << "Number of predictions: " << predictions.size() << std::endl;
-  
-  // std::cout << "Costs: " << std::endl << costs << std::endl;
-
   // Eigen::VectorXd X1 = X.col(0);
 
   // std::vector<double> plotX(X1.data(), X1.data() + X1.size());
   // std::vector<double> plotY(y.data(), y.data() + y.size());
 
-  // Eigen::VectorXd allPredictions = linearRegression.predict(X);
+  // Eigen::VectorXd allPredictions = logisticRegression.predict(X).unaryExpr([](double x) { return x > 0.5 ? 1.0 : 0.0; });
 
   // std::vector<double> plotLine(allPredictions.data(), allPredictions.data() + allPredictions.size());
 
-  // try {
-  //   matplot::scatter(plotX, plotY);
+  try {
+    // matplot::scatter(plotX, plotY);
 
-  //   // matplot::hold(matplot::on);
+    // matplot::hold(matplot::on);
 
-  //   // matplot::plot(plotX, plotLine);
+    std::vector<int> plotX(maxNumberOfIterations);
     
-  //   // matplot::hold(matplot::off);
+    std::iota(plotX.begin(), plotX.end(), 0);
 
-  //   matplot::show();
-  // } catch (std::runtime_error& error) {
-  //   std::cout << "Plotting rror: " << error.what() << std::endl;
-  // }
+    std::vector<double> plotLine(costs.data(), costs.data() + costs.size());
+
+    matplot::plot(plotX, plotLine);
+    matplot::ylabel("Costs");
+    matplot::xlabel("Number of iterations");
+    
+    // matplot::hold(matplot::off);
+
+    matplot::show();
+  } catch (std::runtime_error& error) {
+    std::cout << "Plotting rror: " << error.what() << std::endl;
+  }
 
   return 0;
 }
@@ -122,7 +129,7 @@ int handleLogisticRegression(
     labelColumIsDigit, 
     featureColumns, 
     featureColumnsAreDigits,
-    0.0001,
+    0.001,
     1000
   );
 }

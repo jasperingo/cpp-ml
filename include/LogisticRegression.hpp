@@ -12,7 +12,7 @@ class LogisticRegression {
   unsigned int numberOfIterations;
   Eigen::VectorXd weights;
 
-  Eigen::VectorXd sigmoid(const Eigen::VectorXd& predictions);
+  Eigen::VectorXd sigmoid(const Eigen::ArrayXd& predictions);
 
   Eigen::VectorXd makePredictions(const Eigen::MatrixXd& features);
 
