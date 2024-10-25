@@ -11,7 +11,7 @@ find_package(Matplot++ REQUIRED)
 
 add_executable(CppML src/main.cpp)
 
-target_sources(CppML PUBLIC src/CSVETL.cpp src/KNN.cpp src/LinearRegression.cpp src/LogisticRegression.cpp)
+target_sources(CppML PUBLIC src/CSVETL.cpp src/KNN.cpp src/LinearRegression.cpp src/LogisticRegression.cpp src/DecisionTree.cpp)
 
 target_link_libraries(CppML Eigen3::Eigen)
 
