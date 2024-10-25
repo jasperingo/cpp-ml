@@ -13,8 +13,8 @@ int handleDecisionTree(
   bool labelColumIsDigit, 
   std::vector<unsigned int>& featureColumns, 
   std::vector<bool>& featureColumnsAreDigits,
-  double learningRate,
-  int maxNumberOfIterations
+  unsigned int maxDepth,
+  unsigned int minSampleSplit
 ) {
   CSVETL csvETL(datasetPath);
 
@@ -48,6 +48,36 @@ int handleDecisionTree(
   std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
   std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
 
+  unsigned int noOfFeatures = X.cols() <= 2 ? X.cols() : X.cols() - 1;
+
+  DecisionTree decisionTree(maxDepth, minSampleSplit, noOfFeatures);
+
+  decisionTree.fit(splitResult.trainSamples, splitResult.trainLabels);
+
+  Eigen::VectorXd predictions = decisionTree.predict(splitResult.testSamples);
+
+  int correctCount = 0;
+  int incorrectCount = 0;
+
+  for (int i = 0; i < predictions.size(); i++) {
+    double prediction = predictions(i);
+    double testLabel = splitResult.testLabels(i);
+
+    if (prediction == testLabel) {
+      correctCount++;
+    } else {
+      incorrectCount++;
+    }
+  }
+
+  // std::cout << "Predictions: " << predictionX << std::endl;
+
+  double accuracy = ((double) correctCount) / splitResult.testLabels.size();
+
+  std::cout << "Model accuracy: " << accuracy << std::endl;
+  std::cout << "Model accuracy %: " << (accuracy * 100) << std::endl;
+  std::cout << "Number of correct predictions: " << correctCount << std::endl;
+  std::cout << "Number of incorrect predictions: " << incorrectCount << std::endl;
 
   return 0;
 }
@@ -65,46 +95,46 @@ int handleDecisionTree(
     labelColumIsDigit, 
     featureColumns, 
     featureColumnsAreDigits,
-    0.001,
-    1000
+    100,
+    2
   );
 }
 
-int handleDecisionTree(
+int handleDecisionTreeWithMaxDepth(
   std::string& datasetPath, 
   unsigned int labelColumn, 
   bool labelColumIsDigit, 
   std::vector<unsigned int>& featureColumns, 
   std::vector<bool>& featureColumnsAreDigits,
-  int maxNumberOfIterations
+  unsigned int maxDepth
 ) {
   return handleDecisionTree(
     datasetPath, 
     labelColumn, 
     labelColumIsDigit, 
     featureColumns, 
-    featureColumnsAreDigits,
-    0.001,
-    maxNumberOfIterations
+    featureColumnsAreDigits, 
+    maxDepth,
+    2
   );
 }
 
-int handleDecisionTree(
+int handleDecisionTreeWithMinSampleSplit(
   std::string& datasetPath, 
   unsigned int labelColumn, 
   bool labelColumIsDigit, 
   std::vector<unsigned int>& featureColumns, 
   std::vector<bool>& featureColumnsAreDigits,
-  double learningRate
+  unsigned int minSampleSplit
 ) {
   return handleDecisionTree(
     datasetPath, 
     labelColumn, 
     labelColumIsDigit, 
     featureColumns, 
-    featureColumnsAreDigits,
-    learningRate,
-    1000
+    featureColumnsAreDigits, 
+    100,
+    minSampleSplit
   );
 }
 

@@ -8,6 +8,7 @@
 #include "KNN.hpp"
 #include "CSVETL.hpp"
 #include "KNNHandler.hpp"
+#include "DecisionTreeHandler.hpp"
 #include "LinearRegressionHandler.hpp"
 #include "LogisticRegressionHandler.hpp"
 
@@ -26,6 +27,9 @@ int main(int argc, char* argv[]) {
 
   std::string learningRateOption = "--learning-rate";
   std::string maxNumberOfIterationsOption = "--max-iterations";
+
+  std::string maxDepthOption = "--max-depth";
+  std::string minSampleSplitOption = "--min-sample-split";
 
   std::string algorithm;
   std::string dataset;
@@ -271,6 +275,78 @@ int main(int argc, char* argv[]) {
 
       return handleLogisticRegression(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
     }
+  } else if (algorithm == "decision-tree") {
+  
+    bool maxDepthProvided = false;
+    bool minSampleSplitProvided = false;
+
+    std::string maxDepth;
+    std::string minSampleSplit;
+
+    unsigned int maxDepthDigit;
+    unsigned int minSampleSplitDigit;
+
+    itr = std::find(argv, end, maxDepthOption);
+
+    if (itr != end && ++itr != end) {
+      maxDepth = *itr;
+      maxDepthProvided = true;
+      maxDepthDigit = (unsigned int) std::atof(maxDepth.c_str());
+
+      if (maxDepthDigit < 10) {
+        std::cout << maxDepthOption << " cannot be less than 10" << std::endl;
+        return 1;
+      }
+    }
+
+    itr = std::find(argv, end, minSampleSplitOption);
+
+    if (itr != end && ++itr != end) {
+      minSampleSplit = *itr;
+      minSampleSplitProvided = true;
+      minSampleSplitDigit = (unsigned int) std::atof(minSampleSplit.c_str());
+
+      if (minSampleSplitDigit < 2) {
+        std::cout << minSampleSplitOption << " cannot be less than 2" << std::endl;
+        return 1;
+      }
+    }
+
+    if (maxDepthProvided && minSampleSplitProvided) {
+      return handleDecisionTree(
+        dataset, 
+        labelColumnDigit, 
+        labelColumnIsDigitBool, 
+        featureColumnsDigits, 
+        featureColumnsAreDigitBools, 
+        maxDepthDigit, 
+        minSampleSplitDigit
+      );
+    }
+
+    if (maxDepthProvided) {
+      return handleDecisionTreeWithMaxDepth(
+        dataset, 
+        labelColumnDigit, 
+        labelColumnIsDigitBool, 
+        featureColumnsDigits, 
+        featureColumnsAreDigitBools, 
+        maxDepthDigit
+      );
+    }
+
+    if (minSampleSplitProvided) {
+      return handleDecisionTreeWithMinSampleSplit(
+        dataset, 
+        labelColumnDigit, 
+        labelColumnIsDigitBool, 
+        featureColumnsDigits, 
+        featureColumnsAreDigitBools,
+        minSampleSplitDigit
+      );
+    }
+    
+    return handleDecisionTree(dataset, labelColumnDigit, labelColumnIsDigitBool, featureColumnsDigits, featureColumnsAreDigitBools);
   }
 
   std::cout << "Provided algorithm: " << algorithm << " has no implementation" << std::endl;
