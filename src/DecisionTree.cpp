@@ -57,6 +57,8 @@ std::tuple<unsigned int, double> DecisionTree::bestSplit(Eigen::MatrixXd &featur
     for (double threshold: thresholds) {
       double gain = informationGain(labels, featureColumn, threshold);
 
+      // std::cout << "Information gain for feature = " << featureIndex << " and threshold = " << threshold << " : " << gain << std::endl;
+
       if (gain > bestGain) {
         bestGain = gain;
         splitIndex = featureIndex;
@@ -71,6 +73,8 @@ std::tuple<unsigned int, double> DecisionTree::bestSplit(Eigen::MatrixXd &featur
 double DecisionTree::informationGain(Eigen::VectorXd &labels, Eigen::VectorXd &feature, double threshold) {
   double parentEntropy = entropy(labels);
 
+  // std::cout << "Parent entropy: " << parentEntropy << std::endl;
+
   std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> childrenIndexes = split(feature, threshold);
   std::vector<unsigned int> leftIndexes = std::get<0>(childrenIndexes);
   std::vector<unsigned int> rightIndexes = std::get<1>(childrenIndexes);
@@ -83,17 +87,24 @@ double DecisionTree::informationGain(Eigen::VectorXd &labels, Eigen::VectorXd &f
   Eigen::VectorXd rightLabels(rightIndexes.size());
 
   for (unsigned int i = 0; i < leftIndexes.size(); i++) {
-    leftLabels(i) = labels(i);
+    leftLabels(i) = labels(leftIndexes.at(i));
   }
 
   for (unsigned int i = 0; i < rightIndexes.size(); i++) {
-    rightLabels(i) = labels(i);
+    rightLabels(i) = labels(rightIndexes.at(i));
   }
 
   double leftEntropy = entropy(leftLabels);
   double rightEntropy = entropy(rightLabels);
+  
+  // std::cout << "Left child entropy: " << leftEntropy << std::endl;
+  // std::cout << "Right child entropy: " << rightEntropy << std::endl;
 
-  double childEntropy = ((leftLabels.size() / labels.size()) * leftEntropy) + ((rightLabels.size() / labels.size()) * rightEntropy);
+  double childEntropy = 
+    (((double) leftLabels.size() / (double) labels.size()) * leftEntropy) + 
+    (((double) rightLabels.size() / (double) labels.size()) * rightEntropy);
+
+  // std::cout << "Child entropy: " << childEntropy << std::endl;
 
   return parentEntropy - childEntropy;
 }
@@ -168,6 +179,8 @@ DecisionTree::Node* DecisionTree::grow(Eigen::MatrixXd &features, Eigen::VectorX
 
   unsigned int bestFeatureIndex = std::get<0>(bestSplitResult);
   double bestThreshold = std::get<1>(bestSplitResult);
+  
+  // std::cout << "Best feature index: " << bestFeatureIndex << " and best threshold: " << bestThreshold << std::endl;
 
   Eigen::VectorXd bestFeatureColumn = features.col(bestFeatureIndex);
 
@@ -182,13 +195,13 @@ DecisionTree::Node* DecisionTree::grow(Eigen::MatrixXd &features, Eigen::VectorX
   Eigen::MatrixXd rightFeatures(rightIndexes.size(), numberOfDataFeatures);
 
   for (unsigned int i = 0; i < leftIndexes.size(); i++) {
-    leftLabels(i) = labels(i);
-    leftFeatures.row(i) = features.row(i);
+    leftLabels(i) = labels(leftIndexes.at(i));
+    leftFeatures.row(i) = features.row(leftIndexes.at(i));
   }
 
   for (unsigned int i = 0; i < rightIndexes.size(); i++) {
-    rightLabels(i) = labels(i);
-    rightFeatures.row(i) = features.row(i);
+    rightLabels(i) = labels(rightIndexes.at(i));
+    rightFeatures.row(i) = features.row(rightIndexes.at(i));
   }
 
   DecisionTree::Node* leftNode = grow(leftFeatures, leftLabels, depth + 1);
