@@ -8,27 +8,18 @@
 #include "CSVETL.hpp"
 #include "LinearRegression.hpp"
 
-int handleLinearRegression(
-  std::string& datasetPath, 
-  unsigned int labelColumn, 
-  bool labelColumIsDigit, 
-  std::vector<unsigned int>& featureColumns, 
-  std::vector<bool>& featureColumnsAreDigits,
-  double learningRate,
-  int maxNumberOfIterations
-) {
-  CSVETL csvETL(datasetPath);
+struct LinearRegressionConfig {
+  CSVETL& etl;
+  double learningRate = 0.001;
+  unsigned int maxNumberOfIterations = 1000;
 
-  if (!csvETL.load(labelColumn, labelColumIsDigit, featureColumns, featureColumnsAreDigits)) {
-    std::cout << "Dataset: " << datasetPath << " not loaded " << std::endl;
-    return 1;
-  }
+  LinearRegressionConfig(CSVETL& etl): etl(etl) {}
+};
 
-  std::cout << "Dataset: " << datasetPath << " loaded " << std::endl;
+void handleLinearRegression(LinearRegressionConfig& config) {
+  Eigen::MatrixXd X = config.etl.getFeatures();
 
-  Eigen::MatrixXd X = csvETL.getFeatures();
-
-  Eigen::VectorXd y = csvETL.getLabels();
+  Eigen::VectorXd y = config.etl.getLabels();
 
   std::cout << "Number of samples: " << X.rows() << std::endl;
   std::cout << "Number of features: " << X.cols() << std::endl;
@@ -42,14 +33,14 @@ int handleLinearRegression(
 
   // std::cout << y << std::endl << std::endl;
 
-  CSVETL::DataSplitResult splitResult = csvETL.splitData(y, X);
+  CSVETL::DataSplitResult splitResult = config.etl.splitData(y, X);
 
   std::cout << "Number of train samples: " << splitResult.trainSamples.rows() << std::endl;
   std::cout << "Number of test samples: " << splitResult.testSamples.rows() << std::endl;
   std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
   std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
 
-  LinearRegression linearRegression(maxNumberOfIterations, learningRate);
+  LinearRegression linearRegression(config.maxNumberOfIterations, config.learningRate);
   
   Eigen::VectorXd costs = linearRegression.fit(splitResult.trainLabels, splitResult.trainSamples);
 
@@ -84,64 +75,6 @@ int handleLinearRegression(
   } catch (std::runtime_error& error) {
     std::cout << "Plotting rror: " << error.what() << std::endl;
   }
-
-  return 0;
-}
-
-int handleLinearRegression(
-  std::string& datasetPath, 
-  unsigned int labelColumn, 
-  bool labelColumIsDigit, 
-  std::vector<unsigned int>& featureColumns, 
-  std::vector<bool>& featureColumnsAreDigits
-) {
-  return handleLinearRegression(
-    datasetPath, 
-    labelColumn, 
-    labelColumIsDigit, 
-    featureColumns, 
-    featureColumnsAreDigits,
-    0.001,
-    1000
-  );
-}
-
-int handleLinearRegression(
-  std::string& datasetPath, 
-  unsigned int labelColumn, 
-  bool labelColumIsDigit, 
-  std::vector<unsigned int>& featureColumns, 
-  std::vector<bool>& featureColumnsAreDigits,
-  int maxNumberOfIterations
-) {
-  return handleLinearRegression(
-    datasetPath, 
-    labelColumn, 
-    labelColumIsDigit, 
-    featureColumns, 
-    featureColumnsAreDigits,
-    0.001,
-    maxNumberOfIterations
-  );
-}
-
-int handleLinearRegression(
-  std::string& datasetPath, 
-  unsigned int labelColumn, 
-  bool labelColumIsDigit, 
-  std::vector<unsigned int>& featureColumns, 
-  std::vector<bool>& featureColumnsAreDigits,
-  double learningRate
-) {
-  return handleLinearRegression(
-    datasetPath, 
-    labelColumn, 
-    labelColumIsDigit, 
-    featureColumns, 
-    featureColumnsAreDigits,
-    learningRate,
-    1000
-  );
 }
 
 #endif /* CPP_ML_LINEAR_REGRESSION_HANDLER_H_ */

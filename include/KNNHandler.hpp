@@ -7,25 +7,17 @@
 #include "KNN.hpp"
 #include "CSVETL.hpp"
 
-int handleKNN(
-  std::string datasetPath, 
-  unsigned int labelColumn, 
-  bool labelColumIsDigit, 
-  std::vector<unsigned int> featureColumns, 
-  std::vector<bool> featureColumnsAreDigits
-) {
-  CSVETL csvETL(datasetPath);
+struct KNNConfig {
+  CSVETL& etl;
+  unsigned int numberOfK = 3;
 
-  if (!csvETL.load(labelColumn, labelColumIsDigit, featureColumns, featureColumnsAreDigits)) {
-    std::cout << "Dataset: " << datasetPath << " not loaded " << std::endl;
-    return 1;
-  }
+  KNNConfig(CSVETL& etl): etl(etl) {}
+};
 
-  std::cout << "Dataset: " << datasetPath << " loaded " << std::endl;
+void handleKNN(KNNConfig& config) {
+  Eigen::MatrixXd X = config.etl.getFeatures();
 
-  Eigen::MatrixXd X = csvETL.getFeatures();
-
-  Eigen::VectorXd y = csvETL.getLabels();
+  Eigen::VectorXd y = config.etl.getLabels();
 
   // std::cout << "Samples:" << std::endl << std::endl;
 
@@ -38,14 +30,14 @@ int handleKNN(
   std::cout << "Number of samples: " << X.rows() << std::endl;
   std::cout << "Number of features: " << X.cols() << std::endl;
 
-  CSVETL::DataSplitResult splitResult = csvETL.splitData(y, X);
+  CSVETL::DataSplitResult splitResult = config.etl.splitData(y, X);
 
   std::cout << "Number of train samples: " << splitResult.trainSamples.rows() << std::endl;
   std::cout << "Number of test samples: " << splitResult.testSamples.rows() << std::endl;
   std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
   std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
 
-  KNN knn(3);
+  KNN knn(config.numberOfK);
 
   knn.fit(splitResult.trainLabels, splitResult.trainSamples);
 
@@ -72,7 +64,6 @@ int handleKNN(
   std::cout << "Number of correct predictions: " << correctCount << std::endl;
   std::cout << "Number of incorrect predictions: " << incorrectCount << std::endl;
 
-  return 0;
 }
 
 #endif /* CPP_ML_KNN_HANDLER_H_ */

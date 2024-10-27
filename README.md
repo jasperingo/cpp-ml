@@ -7,6 +7,7 @@ Implementations of machine learning algorithms.
 - K-Nearest Neighbour (KNN)
 - Linear Regression
 - Logistic Regression
+- Decision Tree
 
 ## Dependencies
 
@@ -39,6 +40,7 @@ ML algorithm to use. Values can be any of:
 - knn
 - linear-regression 
 - logistic-regression 
+- decision-tree 
 
 `--algorithm knn`
 
@@ -74,6 +76,14 @@ Comma separated values that indicates if the value of the features are digit or 
 
 `--feature-columns-digit true,false,true`
 
+**--number-of-k**
+
+Optional argument
+
+Used to specify a custom number of K neighbours for KNN algorithm. Default value is 3
+
+`--learning-rate 5`
+
 **--learning-rate**
 
 Optional argument
@@ -89,3 +99,28 @@ Optional argument
 Used to specify a custom maximum number of iterations for algorithms that support it. Default value is 1000
 
 `--max-iterations 2000`
+
+**--max-depth**
+
+Optional argument
+
+Used to specify a custom maximum tree depth for algorithms that support it. Default value is 100
+
+`--max-depth 200`
+
+**--min-sample-split**
+
+Optional argument
+
+Used to specify a custom minimum number of sample to be present in a tree node for splitting of the node to be allowed depth for algorithms that support it. Default value is 2
+
+`--min-sample-split 5`
+
+**--number-of-features**
+
+Optional argument
+
+Used to specify a custom number of features to selected at random from the provided features at specific point during training for algorithms that support it. 
+Default value is number of features - 1
+
+`--number-of-features 3`

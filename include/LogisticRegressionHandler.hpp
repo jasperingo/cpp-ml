@@ -9,27 +9,19 @@
 #include "CSVETL.hpp"
 #include "LogisticRegression.hpp"
 
-int handleLogisticRegression(
-  std::string& datasetPath, 
-  unsigned int labelColumn, 
-  bool labelColumIsDigit, 
-  std::vector<unsigned int>& featureColumns, 
-  std::vector<bool>& featureColumnsAreDigits,
-  double learningRate,
-  int maxNumberOfIterations
-) {
-  CSVETL csvETL(datasetPath);
+struct LogisticRegressionConfig {
+  CSVETL& etl;
+  double learningRate = 0.001;
+  unsigned int maxNumberOfIterations = 1000;
 
-  if (!csvETL.load(labelColumn, labelColumIsDigit, featureColumns, featureColumnsAreDigits)) {
-    std::cout << "Dataset: " << datasetPath << " not loaded " << std::endl;
-    return 1;
-  }
+  LogisticRegressionConfig(CSVETL& etl): etl(etl) {}
+};
 
-  std::cout << "Dataset: " << datasetPath << " loaded " << std::endl;
+void handleLogisticRegression(LogisticRegressionConfig& config) {
 
-  Eigen::MatrixXd X = csvETL.getFeatures();
+  Eigen::MatrixXd X = config.etl.getFeatures();
 
-  Eigen::VectorXd y = csvETL.getLabels();
+  Eigen::VectorXd y = config.etl.getLabels();
 
   std::cout << "Number of samples: " << X.rows() << std::endl;
   std::cout << "Number of features: " << X.cols() << std::endl;
@@ -43,14 +35,14 @@ int handleLogisticRegression(
 
   // std::cout << y << std::endl << std::endl;
 
-  CSVETL::DataSplitResult splitResult = csvETL.splitData(y, X);
+  CSVETL::DataSplitResult splitResult = config.etl.splitData(y, X);
 
   std::cout << "Number of train samples: " << splitResult.trainSamples.rows() << std::endl;
   std::cout << "Number of test samples: " << splitResult.testSamples.rows() << std::endl;
   std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
   std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
 
-  LogisticRegression logisticRegression(maxNumberOfIterations, learningRate);
+  LogisticRegression logisticRegression(config.maxNumberOfIterations, config.learningRate);
   
   Eigen::VectorXd costs = logisticRegression.fit(splitResult.trainLabels, splitResult.trainSamples);
 
@@ -96,7 +88,7 @@ int handleLogisticRegression(
 
     // matplot::hold(matplot::on);
 
-    std::vector<int> plotX(maxNumberOfIterations);
+    std::vector<int> plotX(config.maxNumberOfIterations);
     
     std::iota(plotX.begin(), plotX.end(), 0);
 
@@ -112,64 +104,6 @@ int handleLogisticRegression(
   } catch (std::runtime_error& error) {
     std::cout << "Plotting rror: " << error.what() << std::endl;
   }
-
-  return 0;
-}
-
-int handleLogisticRegression(
-  std::string& datasetPath, 
-  unsigned int labelColumn, 
-  bool labelColumIsDigit, 
-  std::vector<unsigned int>& featureColumns, 
-  std::vector<bool>& featureColumnsAreDigits
-) {
-  return handleLogisticRegression(
-    datasetPath, 
-    labelColumn, 
-    labelColumIsDigit, 
-    featureColumns, 
-    featureColumnsAreDigits,
-    0.001,
-    1000
-  );
-}
-
-int handleLogisticRegression(
-  std::string& datasetPath, 
-  unsigned int labelColumn, 
-  bool labelColumIsDigit, 
-  std::vector<unsigned int>& featureColumns, 
-  std::vector<bool>& featureColumnsAreDigits,
-  int maxNumberOfIterations
-) {
-  return handleLogisticRegression(
-    datasetPath, 
-    labelColumn, 
-    labelColumIsDigit, 
-    featureColumns, 
-    featureColumnsAreDigits,
-    0.001,
-    maxNumberOfIterations
-  );
-}
-
-int handleLogisticRegression(
-  std::string& datasetPath, 
-  unsigned int labelColumn, 
-  bool labelColumIsDigit, 
-  std::vector<unsigned int>& featureColumns, 
-  std::vector<bool>& featureColumnsAreDigits,
-  double learningRate
-) {
-  return handleLogisticRegression(
-    datasetPath, 
-    labelColumn, 
-    labelColumIsDigit, 
-    featureColumns, 
-    featureColumnsAreDigits,
-    learningRate,
-    1000
-  );
 }
 
 #endif /* CPP_ML_LOGISTIC_REGRESSION_HANDLER_H_ */
