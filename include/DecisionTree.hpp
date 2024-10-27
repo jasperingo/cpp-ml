@@ -1,12 +1,11 @@
 #ifndef CPP_ML_DECISION_TREE_H_
 #define CPP_ML_DECISION_TREE_H_
 
-#include <iostream>
 #include <map>
 #include <set>
 #include <vector>
-#include <cmath>
 #include <ctime>
+#include <iostream>
 #include <Eigen/Dense>
 
 class DecisionTree {
@@ -15,14 +14,14 @@ class DecisionTree {
     bool isLeafNode;
     double threshold;
     unsigned int feature;
-    DecisionTree::Node* left;
-    DecisionTree::Node* right;
+    DecisionTree::Node* left = nullptr;
+    DecisionTree::Node* right = nullptr;
   };
 
   unsigned int maxDepth;
   unsigned int minSampleSplit;
   unsigned int numberOfFeatures;
-  DecisionTree::Node* rootNode;
+  DecisionTree::Node* rootNode = nullptr;
 
   void deleteNodes(DecisionTree::Node* node);
 
@@ -43,6 +42,7 @@ class DecisionTree {
   double traverse(Eigen::RowVectorXd& sample, DecisionTree::Node* node);
 
 public:
+  DecisionTree() {}
 
   DecisionTree(unsigned int maxDepth, unsigned int minSampleSplit, unsigned int numberOfFeatures) : 
     maxDepth(maxDepth), 
@@ -50,7 +50,9 @@ public:
     numberOfFeatures(numberOfFeatures) {}
   
   ~DecisionTree() {
-    deleteNodes(rootNode);
+    if (rootNode != nullptr) {
+      deleteNodes(rootNode);
+    }
   }
 
   void fit(Eigen::MatrixXd& features, Eigen::VectorXd& labels);

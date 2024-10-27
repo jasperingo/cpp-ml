@@ -124,3 +124,11 @@ Used to specify a custom number of features to selected at random from the provi
 Default value is number of features - 1
 
 `--number-of-features 3`
+
+**--number-of-trees**
+
+Optional argument
+
+Used to specify a custom number of trees for Random forest algorithm. Default value is 5
+
+`--number-of-trees 10`

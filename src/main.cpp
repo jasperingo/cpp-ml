@@ -9,6 +9,7 @@
 #include "KNN.hpp"
 #include "CSVETL.hpp"
 #include "KNNHandler.hpp"
+#include "RandomForestHandler.hpp"
 #include "DecisionTreeHandler.hpp"
 #include "LinearRegressionHandler.hpp"
 #include "LogisticRegressionHandler.hpp"
@@ -28,6 +29,7 @@ const std::string maxNumberOfIterationsOption = "--max-iterations";
 const std::string maxDepthOption = "--max-depth";
 const std::string minSampleSplitOption = "--min-sample-split";
 const std::string numberOfFeaturesOption = "--number-of-features";
+const std::string numberOfTreesOption = "--number-of-trees";
 
 std::tuple<std::string, bool, double> findArgument(
   char ** argsBegin, 
@@ -239,7 +241,7 @@ int main(int argc, char* argv[]) {
 
       }
 
-    } else if (algorithm == "decision-tree") {
+    } else if (algorithm == "decision-tree" || algorithm == "random-forest") {
 
       std::tuple<std::string, bool, double> maxDepthResult = findArgument(
         argv, 
@@ -280,22 +282,59 @@ int main(int argc, char* argv[]) {
       bool numberOfFeaturesProvided = std::get<1>(numberOfFeaturesResult);
       unsigned int numberOfFeaturesDigit = (unsigned int) std::get<2>(numberOfFeaturesResult);
 
-      DecisionTreeConfig decisionTreeConfig(csvETL);
+      if (algorithm == "decision-tree") {
+        DecisionTreeConfig decisionTreeConfig(csvETL);
 
-      if (maxDepthProvided) {
-        decisionTreeConfig.maxDepth = maxDepthDigit;
+        if (maxDepthProvided) {
+          decisionTreeConfig.maxDepth = maxDepthDigit;
+        }
+
+        if (minSampleSplitProvided) {
+          decisionTreeConfig.minSampleSplit = minSampleSplitDigit;
+        }
+
+        if (numberOfFeaturesProvided) {
+          decisionTreeConfig.numberOfFeatures = numberOfFeaturesDigit;
+        }
+        
+        handleDecisionTree(decisionTreeConfig);
+        
+      } else {
+        
+        std::tuple<std::string, bool, double> numberOfTreesResult = findArgument(
+          argv, 
+          argvEnd, 
+          numberOfTreesOption, 
+          true, 
+          false, 
+          [](double value) { return value < 5; }, 
+          numberOfTreesOption + " cannot be less than 5"
+        );
+
+        bool numberOfTreesProvided = std::get<1>(numberOfTreesResult);
+        unsigned int numberOfTreesDigit = (unsigned int) std::get<2>(numberOfTreesResult);
+        
+        RandomForestConfig randomForestConfig(csvETL);
+        
+        if (maxDepthProvided) {
+          randomForestConfig.maxDepth = maxDepthDigit;
+        }
+
+        if (minSampleSplitProvided) {
+          randomForestConfig.minSampleSplit = minSampleSplitDigit;
+        }
+
+        if (numberOfFeaturesProvided) {
+          randomForestConfig.numberOfFeatures = numberOfFeaturesDigit;
+        }
+
+        if (numberOfTreesProvided) {
+          randomForestConfig.numberOfTrees = numberOfTreesDigit;
+        }
+
+        handleRandomForest(randomForestConfig);
       }
 
-      if (minSampleSplitProvided) {
-        decisionTreeConfig.minSampleSplit = minSampleSplitDigit;
-      }
-
-      if (numberOfFeaturesProvided) {
-        decisionTreeConfig.numberOfFeatures = numberOfFeaturesDigit;
-      }
-      
-      handleDecisionTree(decisionTreeConfig);
-      
     } else {
       throw std::runtime_error("Provided algorithm: " + algorithm + " has no implementation");
     }

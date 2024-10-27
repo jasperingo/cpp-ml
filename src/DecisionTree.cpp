@@ -2,8 +2,13 @@
 
 void DecisionTree::deleteNodes(DecisionTree::Node* node) {
   if (!node->isLeafNode) {
-    deleteNodes(node->left);
-    deleteNodes(node->right);
+    if (node->left != nullptr) {
+      deleteNodes(node->left);
+    }
+
+    if (node->right != nullptr) {
+      deleteNodes(node->right);
+    }
   }
 
   delete node;
@@ -170,11 +175,11 @@ DecisionTree::Node* DecisionTree::grow(Eigen::MatrixXd &features, Eigen::VectorX
     std::vector<unsigned int>::iterator it = std::find(featureIndexes.begin(), featureIndexes.end(), randomIndex);
 
     if (it == featureIndexes.end()) {
+      featureIndexes.at(numberOfFoundFeatures) = randomIndex;
       numberOfFoundFeatures++;
-      featureIndexes.push_back(randomIndex);
     }
   }
-  
+
   std::tuple<unsigned int, double> bestSplitResult = bestSplit(features, labels, featureIndexes);
 
   unsigned int bestFeatureIndex = std::get<0>(bestSplitResult);
@@ -230,6 +235,12 @@ double DecisionTree::traverse(Eigen::RowVectorXd &sample, DecisionTree::Node *no
 }
 
 void DecisionTree::fit(Eigen::MatrixXd &features, Eigen::VectorXd &labels) {
+  unsigned int numberOfDataFeatures = (unsigned int) features.cols();
+
+  numberOfFeatures = numberOfFeatures > 0 && numberOfFeatures < numberOfDataFeatures
+    ? numberOfFeatures
+    : numberOfDataFeatures;
+
   rootNode = grow(features, labels);
 }
 
