@@ -82,7 +82,7 @@ Optional argument
 
 Used to specify a custom number of K neighbours for KNN algorithm. Default value is 3
 
-`--learning-rate 5`
+`--number-of-k 5`
 
 **--learning-rate**
 
