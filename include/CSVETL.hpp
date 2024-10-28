@@ -46,7 +46,13 @@ public:
 
   bool load(unsigned int labelColumn, bool labelColumIsDigit, std::vector<unsigned int> featureColumns, std::vector<bool> featureColumnsAreDigits);
 
-  DataSplitResult splitData(Eigen::VectorXd& labels, Eigen::MatrixXd& samples, float testSize = 0.2);
+  DataSplitResult splitData(float testSize = 0.2);
+
+  void printDataset();
+
+  void printDatasetSize();
+
+  void printDatasetSplitSize(DataSplitResult split);
 };
 
 #endif /* CPP_ML_CSVETL_H_ */

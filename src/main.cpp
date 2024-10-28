@@ -160,6 +160,8 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Dataset: " << dataset << " loaded " << std::endl;
 
+    csvETL.printDatasetSize();
+
     if (algorithm == "knn") {
 
       std::tuple<std::string, bool, double> numberOfKResult = findArgument(

@@ -21,24 +21,9 @@ void handleLinearRegression(LinearRegressionConfig& config) {
 
   Eigen::VectorXd y = config.etl.getLabels();
 
-  std::cout << "Number of samples: " << X.rows() << std::endl;
-  std::cout << "Number of features: " << X.cols() << std::endl;
-  std::cout << "Number of labels: " << y.size() << std::endl;
-
-  // std::cout << "Features:" << std::endl << std::endl;
-
-  // std::cout << X << std::endl << std::endl;
-
-  // std::cout << "Labels:" << std::endl << std::endl;
-
-  // std::cout << y << std::endl << std::endl;
-
-  CSVETL::DataSplitResult splitResult = config.etl.splitData(y, X);
-
-  std::cout << "Number of train samples: " << splitResult.trainSamples.rows() << std::endl;
-  std::cout << "Number of test samples: " << splitResult.testSamples.rows() << std::endl;
-  std::cout << "Number of train labels: " << splitResult.trainLabels.rows() << std::endl;
-  std::cout << "Number of test labels: " << splitResult.testLabels.rows() << std::endl;
+  CSVETL::DataSplitResult splitResult = config.etl.splitData();
+  
+  config.etl.printDatasetSplitSize(splitResult);
 
   LinearRegression linearRegression(config.maxNumberOfIterations, config.learningRate);
   

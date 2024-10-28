@@ -167,7 +167,7 @@ bool CSVETL::load(
   return true;
 }
 
-CSVETL::DataSplitResult CSVETL::splitData(Eigen::VectorXd& labels, Eigen::MatrixXd& samples, float testSize) {
+CSVETL::DataSplitResult CSVETL::splitData(float testSize) {
   size_t dataSize = labels.rows();
 
   std::vector<size_t> indexes(dataSize);
@@ -182,27 +182,50 @@ CSVETL::DataSplitResult CSVETL::splitData(Eigen::VectorXd& labels, Eigen::Matrix
 
   Eigen::VectorXd trainLabels(trainDataSize);
   Eigen::VectorXd testLabels(testDataSize);
-  Eigen::MatrixXd trainSamples(trainDataSize, samples.cols());
-  Eigen::MatrixXd testSamples(testDataSize, samples.cols());
+  Eigen::MatrixXd trainSamples(trainDataSize, features.cols());
+  Eigen::MatrixXd testSamples(testDataSize, features.cols());
 
   for (size_t i = 0; i < trainDataSize; i++) {
     size_t index = indexes[i];
     trainLabels.row(i) = labels.row(index);
-    trainSamples.row(i) = samples.row(index);
+    trainSamples.row(i) = features.row(index);
   }
 
   for (size_t i = 0; i < testDataSize; i++) {
     size_t index = indexes[i + trainDataSize];
     testLabels.row(i) = labels.row(index);
-    testSamples.row(i) = samples.row(index);
+    testSamples.row(i) = features.row(index);
   }
 
   DataSplitResult result;
-  
   result.testLabels = testLabels;
   result.trainLabels = trainLabels;
   result.testSamples = testSamples;
   result.trainSamples = trainSamples;
   
   return result;
+}
+
+void CSVETL::printDataset() {
+  std::cout << "Features:" << std::endl;
+
+  std::cout << features << std::endl << std::endl;
+
+  std::cout << "Labels:" << std::endl;
+
+  std::cout << labels << std::endl << std::endl;
+}
+
+void CSVETL::printDatasetSize() {
+  std::cout << "Number of samples: " << features.rows() << std::endl;
+  std::cout << "Number of features: " << features.cols() << std::endl;
+  std::cout << "Number of labels: " << labels.size() << std::endl;
+}
+
+void CSVETL::printDatasetSplitSize(DataSplitResult split) {
+  std::cout << "Number of train samples: " << split.trainSamples.rows() << std::endl;
+  std::cout << "Number of train labels: " << split.trainLabels.size() << std::endl;
+  
+  std::cout << "Number of test samples: " << split.testSamples.rows() << std::endl;
+  std::cout << "Number of test labels: " << split.testLabels.size() << std::endl;
 }
