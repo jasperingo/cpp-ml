@@ -15,12 +15,13 @@ class RandomForest {
   unsigned int treeNumberOfFeatures;
   unsigned int numberOfTrees;
   std::vector<DecisionTree> trees;
+  std::vector<std::vector<unsigned int>> treesFeatureIndexes;
 
   std::map<double, int> labelsFrequency(Eigen::VectorXd& labels);
 
   double mostCommonLabel(Eigen::VectorXd& labels);
 
-  std::tuple<Eigen::MatrixXd, Eigen::VectorXd> bootstrap(Eigen::MatrixXd& features, Eigen::VectorXd& labels);
+  std::tuple<Eigen::MatrixXd, Eigen::VectorXd, std::vector<unsigned int>> bootstrap(Eigen::MatrixXd& features, Eigen::VectorXd& labels);
 
 public:
 

@@ -36,11 +36,11 @@ double RandomForest::mostCommonLabel(Eigen::VectorXd &labels) {
   return mostCommonLabel;
 }
 
-std::tuple<Eigen::MatrixXd, Eigen::VectorXd> RandomForest::bootstrap(Eigen::MatrixXd &features, Eigen::VectorXd &labels) {
+std::tuple<Eigen::MatrixXd, Eigen::VectorXd, std::vector<unsigned int>> RandomForest::bootstrap(Eigen::MatrixXd &features, Eigen::VectorXd &labels) {
   unsigned int numberOfDataSamples = (unsigned int) features.rows();
   unsigned int numberOfDataFeatures = (unsigned int) features.cols();
   
-  unsigned int numberOfSamplesToSelect = numberOfDataSamples <= 4 ? numberOfDataSamples : numberOfDataSamples - 2;
+  unsigned int numberOfSamplesToSelect = numberOfDataSamples <= 20 ? numberOfDataSamples : numberOfDataSamples - 10;
   unsigned int numberOfFeaturesToSelect = numberOfDataFeatures <= 2 ? numberOfDataFeatures : numberOfDataFeatures - 1;
 
   unsigned int numberOfFoundSamples = 0;
@@ -113,24 +113,25 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> RandomForest::bootstrap(Eigen::Matr
     }
   }
 
-  return std::tuple<Eigen::MatrixXd, Eigen::VectorXd>(featuresSubset, labelsSubset);
+  return std::tuple<Eigen::MatrixXd, Eigen::VectorXd, std::vector<unsigned int>>(featuresSubset, labelsSubset, featureIndexes);
 }
 
 void RandomForest::fit(Eigen::MatrixXd &features, Eigen::VectorXd &labels) {
   trees = std::vector<DecisionTree>(numberOfTrees);
+  treesFeatureIndexes = std::vector<std::vector<unsigned int>>(numberOfTrees);
 
   for (unsigned int i = 0; i < numberOfTrees; i++) {
     std::cout << "Creating decision tree number: " << i << std::endl;
 
-    trees.at(i) = DecisionTree(3, treeMinSampleSplit, treeNumberOfFeatures);
+    trees.at(i) = DecisionTree(treeMaxDepth, treeMinSampleSplit, treeNumberOfFeatures);
 
-    std::tuple<Eigen::MatrixXd, Eigen::VectorXd> bootstrapResult = bootstrap(features, labels);
+    std::tuple<Eigen::MatrixXd, Eigen::VectorXd, std::vector<unsigned int>> bootstrapResult = bootstrap(features, labels);
     Eigen::VectorXd labelsSubset = std::get<1>(bootstrapResult);
     Eigen::MatrixXd featuresSubset = std::get<0>(bootstrapResult);
+    treesFeatureIndexes.at(i) = std::get<2>(bootstrapResult);
 
     std::cout << "Started training decision tree number: " << i  << std::endl;
 
-    // tree.fit(featuresSubset, labelsSubset);
     trees.at(i).fit(featuresSubset, labelsSubset);
 
     std::cout << "Completed training decision tree number: " << i  << std::endl;
@@ -147,7 +148,13 @@ Eigen::VectorXd RandomForest::predict(Eigen::MatrixXd &features) {
   for (unsigned int i = 0; i < numberOfTrees; i++) {
     std::cout << "Started prediction for decision tree number: " << i  << std::endl;
 
-    Eigen::RowVectorXd predictions = trees.at(i).predict(features);
+    Eigen::MatrixXd featuresSubset(features.rows(), treesFeatureIndexes.at(i).size());
+
+    for (unsigned int k = 0; k < treesFeatureIndexes.at(i).size(); k++) {
+      featuresSubset.col(k) = features.col(treesFeatureIndexes.at(i).at(k));
+    }
+
+    Eigen::RowVectorXd predictions = trees.at(i).predict(featuresSubset);
     allPredictions.row(i) = predictions;
 
     std::cout << "Completed prediction for decision tree number: " << i  << std::endl;
@@ -155,7 +162,7 @@ Eigen::VectorXd RandomForest::predict(Eigen::MatrixXd &features) {
 
   Eigen::VectorXd results(numberOfDataSamples);
 
-  std::cout << "Started prediction final"  << std::endl;
+  std::cout << "Started final prediction"  << std::endl;
 
   for (unsigned int i = 0; i < numberOfDataSamples; i++) {
     Eigen::VectorXd predictions = allPredictions.col(i);
@@ -165,7 +172,7 @@ Eigen::VectorXd RandomForest::predict(Eigen::MatrixXd &features) {
     results(i) = result;
   }
 
-  std::cout << "Completed prediction final"  << std::endl;
+  std::cout << "Completed final prediction"  << std::endl;
 
   return results;
 }
