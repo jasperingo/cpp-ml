@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include "KNN.hpp"
 #include "CSVETL.hpp"
+#include "MLUtils.hpp"
 
 struct KNNConfig {
   CSVETL& etl;
@@ -43,27 +44,7 @@ void handleKNN(KNNConfig& config) {
 
   Eigen::VectorXd predictions = knn.predict(splitResult.testSamples);
 
-  int correctCount = 0;
-  int incorrectCount = 0;
-
-  for (int i = 0; i < predictions.rows(); i++) {
-    double prediction = predictions(i);
-    double testLabel = splitResult.testLabels(i);
-
-    if (prediction == testLabel) {
-      correctCount++;
-    } else {
-      incorrectCount++;
-    }
-  }
-
-  double accuracy = ((double) correctCount) / splitResult.testLabels.rows();
-
-  std::cout << "Model accuracy: " << accuracy << std::endl;
-  std::cout << "Model accuracy %: " << (accuracy * 100) << std::endl;
-  std::cout << "Number of correct predictions: " << correctCount << std::endl;
-  std::cout << "Number of incorrect predictions: " << incorrectCount << std::endl;
-
+  MLUtils::calculateAndPrintAccuracy(predictions, splitResult.testLabels);
 }
 
 #endif /* CPP_ML_KNN_HANDLER_H_ */

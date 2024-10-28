@@ -7,6 +7,7 @@
 #include <Eigen/Dense>
 #include <matplot/matplot.h>
 #include "CSVETL.hpp"
+#include "MLUtils.hpp"
 #include "LogisticRegression.hpp"
 
 struct LogisticRegressionConfig {
@@ -48,31 +49,9 @@ void handleLogisticRegression(LogisticRegressionConfig& config) {
 
   Eigen::VectorXd predictions = logisticRegression.predict(splitResult.testSamples);
 
-  Eigen::VectorXd predictionX(predictions.size());
-
-  int correctCount = 0;
-  int incorrectCount = 0;
-
-  for (int i = 0; i < predictions.size(); i++) {
-    double prediction = predictions(i) > 0.5 ? 1 : 0;
-    double testLabel = splitResult.testLabels(i);
-    predictionX(i) = prediction;
-
-    if (prediction == testLabel) {
-      correctCount++;
-    } else {
-      incorrectCount++;
-    }
-  }
-
-  // std::cout << "Predictions: " << predictionX << std::endl;
-
-  double accuracy = ((double) correctCount) / splitResult.testLabels.size();
-
-  std::cout << "Model accuracy: " << accuracy << std::endl;
-  std::cout << "Model accuracy %: " << (accuracy * 100) << std::endl;
-  std::cout << "Number of correct predictions: " << correctCount << std::endl;
-  std::cout << "Number of incorrect predictions: " << incorrectCount << std::endl;
+  Eigen::VectorXd booleanPredictions = predictions.unaryExpr([](double x) { return x > 0.5 ? 1.0 : 0.0; });
+  
+  MLUtils::calculateAndPrintAccuracy(booleanPredictions, splitResult.testLabels);
 
   // Eigen::VectorXd X1 = X.col(0);
 

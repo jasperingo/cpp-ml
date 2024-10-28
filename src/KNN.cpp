@@ -64,35 +64,9 @@ double KNN::predict(Eigen::VectorXd& features) {
     i++;
   }
 
-  // get the frequency of each closest labels
-
-  std::map<double, int> mostCommonLabels;
-
-  for (int i = 0; i < kLabels.rows(); i++) {
-    double label = kLabels(i);
-
-    std::map<double, int>::iterator it = mostCommonLabels.find(label);
-
-    if (it == mostCommonLabels.end()) {
-      mostCommonLabels.insert(std::pair<double, int>(label, 1));
-    } else {
-      it->second = it->second + 1;
-    }
-  }
-
   // get the label with highest frequency (majority vote)
 
-  double mostCommonLabel = 0.0;
-  int mostCommonLabelCount = 0;
-
-  for (std::pair<double, int> label: mostCommonLabels) {
-     if (label.second > mostCommonLabelCount) {
-        mostCommonLabel = label.first;
-        mostCommonLabelCount = label.second;
-    }
-  }
-
-  return mostCommonLabel;
+  return MLUtils::mostCommonLabel(kLabels);
 }
 
 double KNN::euclideanDistance(Eigen::VectorXd& test, Eigen::VectorXd& train) {

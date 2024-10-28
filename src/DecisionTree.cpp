@@ -14,42 +14,6 @@ void DecisionTree::deleteNodes(DecisionTree::Node* node) {
   delete node;
 }
 
-std::map<double, int> DecisionTree::labelsFrequency(Eigen::VectorXd &labels) {
-  std::map<double, int> frequency;
-
-  for (int i = 0; i < labels.rows(); i++) {
-    double label = labels(i);
-
-    std::map<double, int>::iterator it = frequency.find(label);
-
-    if (it == frequency.end()) {
-      frequency.insert(std::pair<double, int>(label, 1));
-    } else {
-      it->second = it->second + 1;
-    }
-  }
-
-  return frequency;
-}
-
-double DecisionTree::mostCommonLabel(Eigen::VectorXd &labels) {
-  std::map<double, int> labelsWithFrequency = labelsFrequency(labels);
-
-  // get the label with highest frequency (majority vote)
-
-  double mostCommonLabel = 0.0;
-  int mostCommonLabelCount = 0;
-
-  for (std::pair<double, int> label: labelsWithFrequency) {
-     if (label.second > mostCommonLabelCount) {
-        mostCommonLabel = label.first;
-        mostCommonLabelCount = label.second;
-    }
-  }
-
-  return mostCommonLabel;
-}
-
 std::tuple<unsigned int, double> DecisionTree::bestSplit(Eigen::MatrixXd &features, Eigen::VectorXd &labels, std::vector<unsigned int> &featureIndexes) {
   double bestGain = -1.0;
   unsigned int splitIndex = -1;
@@ -115,13 +79,13 @@ double DecisionTree::informationGain(Eigen::VectorXd &labels, Eigen::VectorXd &f
 }
 
 double DecisionTree::entropy(Eigen::VectorXd &labels) {
-  std::map<double, int> frequencyMap = labelsFrequency(labels);
+  std::map<double, unsigned int> frequencyMap = MLUtils::labelsFrequency(labels);
 
   Eigen::VectorXd frequencies(frequencyMap.size());
 
   unsigned int i = 0;
 
-  for (std::pair<double, int> item: frequencyMap) {
+  for (std::pair<double, unsigned int> item: frequencyMap) {
     frequencies(i) = (double) item.second;
     i++;
   }
@@ -161,7 +125,7 @@ DecisionTree::Node* DecisionTree::grow(Eigen::MatrixXd &features, Eigen::VectorX
   if (depth >= maxDepth || uniqueLabels.size() == 1 || numberOfDataSamples < minSampleSplit) {
     DecisionTree::Node* node = new DecisionTree::Node;
     node->isLeafNode = true;
-    node->value = mostCommonLabel(labels);
+    node->value = MLUtils::mostCommonLabel(labels);
     return node;
   }
 

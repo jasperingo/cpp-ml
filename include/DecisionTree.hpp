@@ -7,6 +7,7 @@
 #include <ctime>
 #include <iostream>
 #include <Eigen/Dense>
+#include "MLUtils.hpp"
 
 class DecisionTree {
   struct Node {
@@ -24,10 +25,6 @@ class DecisionTree {
   DecisionTree::Node* rootNode = nullptr;
 
   void deleteNodes(DecisionTree::Node* node);
-
-  std::map<double, int> labelsFrequency(Eigen::VectorXd& labels);
-
-  double mostCommonLabel(Eigen::VectorXd& labels);
 
   std::tuple<unsigned int, double> bestSplit(Eigen::MatrixXd& features, Eigen::VectorXd& labels, std::vector<unsigned int>& featureIndexes);
 

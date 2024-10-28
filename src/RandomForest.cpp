@@ -1,41 +1,5 @@
 #include "RandomForest.hpp"
 
-std::map<double, int> RandomForest::labelsFrequency(Eigen::VectorXd &labels) {
-  std::map<double, int> frequency;
-
-  for (int i = 0; i < labels.rows(); i++) {
-    double label = labels(i);
-
-    std::map<double, int>::iterator it = frequency.find(label);
-
-    if (it == frequency.end()) {
-      frequency.insert(std::pair<double, int>(label, 1));
-    } else {
-      it->second = it->second + 1;
-    }
-  }
-
-  return frequency;
-}
-
-double RandomForest::mostCommonLabel(Eigen::VectorXd &labels) {
-  std::map<double, int> labelsWithFrequency = labelsFrequency(labels);
-
-  // get the label with highest frequency (majority vote)
-
-  double mostCommonLabel = 0.0;
-  int mostCommonLabelCount = 0;
-
-  for (std::pair<double, int> label: labelsWithFrequency) {
-     if (label.second > mostCommonLabelCount) {
-      mostCommonLabel = label.first;
-      mostCommonLabelCount = label.second;
-    }
-  }
-
-  return mostCommonLabel;
-}
-
 std::tuple<Eigen::MatrixXd, Eigen::VectorXd, std::vector<unsigned int>> RandomForest::bootstrap(Eigen::MatrixXd &features, Eigen::VectorXd &labels) {
   unsigned int numberOfDataSamples = (unsigned int) features.rows();
   unsigned int numberOfDataFeatures = (unsigned int) features.cols();
@@ -167,7 +131,7 @@ Eigen::VectorXd RandomForest::predict(Eigen::MatrixXd &features) {
   for (unsigned int i = 0; i < numberOfDataSamples; i++) {
     Eigen::VectorXd predictions = allPredictions.col(i);
     
-    double result = mostCommonLabel(predictions);
+    double result = MLUtils::mostCommonLabel(predictions);
 
     results(i) = result;
   }

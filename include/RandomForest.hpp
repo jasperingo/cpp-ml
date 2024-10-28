@@ -7,6 +7,7 @@
 #include <ctime>
 #include <iostream>
 #include <Eigen/Dense>
+#include "MLUtils.hpp"
 #include "DecisionTree.hpp"
 
 class RandomForest {
@@ -16,10 +17,6 @@ class RandomForest {
   unsigned int numberOfTrees;
   std::vector<DecisionTree> trees;
   std::vector<std::vector<unsigned int>> treesFeatureIndexes;
-
-  std::map<double, int> labelsFrequency(Eigen::VectorXd& labels);
-
-  double mostCommonLabel(Eigen::VectorXd& labels);
 
   std::tuple<Eigen::MatrixXd, Eigen::VectorXd, std::vector<unsigned int>> bootstrap(Eigen::MatrixXd& features, Eigen::VectorXd& labels);
 

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include "CSVETL.hpp"
+#include "MLUtils.hpp"
 #include "RandomForest.hpp"
 
 struct RandomForestConfig {
@@ -40,27 +41,7 @@ void handleRandomForest(RandomForestConfig& config) {
 
   Eigen::VectorXd predictions = randomForest.predict(splitResult.testSamples);
 
-  int correctCount = 0;
-  int incorrectCount = 0;
-
-  for (int i = 0; i < predictions.size(); i++) {
-    double prediction = predictions(i);
-    double testLabel = splitResult.testLabels(i);
-
-    if (prediction == testLabel) {
-      correctCount++;
-    } else {
-      incorrectCount++;
-    }
-  }
-
-  double accuracy = ((double) correctCount) / splitResult.testLabels.size();
-
-  std::cout << "Model accuracy: " << accuracy << std::endl;
-  std::cout << "Model accuracy %: " << (accuracy * 100) << std::endl;
-  std::cout << "Number of correct predictions: " << correctCount << std::endl;
-  std::cout << "Number of incorrect predictions: " << incorrectCount << std::endl;
-
+  MLUtils::calculateAndPrintAccuracy(predictions, splitResult.testLabels);
 }
 
 #endif /* CPP_ML_RANDOM_FOREST_HANDLER_H_ */

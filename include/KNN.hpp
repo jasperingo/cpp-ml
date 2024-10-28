@@ -4,6 +4,7 @@
 #include <cmath>
 #include <map>
 #include <Eigen/Dense>
+#include "MLUtils.hpp"
 
 class KNN {
   size_t K;
